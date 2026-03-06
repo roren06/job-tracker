@@ -1,0 +1,406 @@
+.analyticsShell {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* 👈 vertical center */
+  padding: 40px 32px;      /* balanced top/bottom */
+}
+
+@media (max-width: 700px){
+  .analyticsShell{
+    align-items: flex-start;
+    padding: 20px 14px;
+  }
+
+  .analyticsInner{
+    padding: 0;
+  }
+}
+
+.analyticsInner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.analyticsHeader {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.analyticsTitle {
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+}
+
+.analyticsSub {
+  opacity: 0.72;
+  font-size: 14px;
+}
+
+
+.analyticsGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+
+.analyticsTwoCol {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+@media (max-width: 1100px) {
+  .analyticsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .analyticsTwoCol {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analyticsCard {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
+  padding: 14px;
+}
+
+.analyticsCardTitle {
+  font-weight: 800;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.analyticsKpiLabel {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.analyticsKpiValue {
+  margin-top: 8px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.barList {
+  display: grid;
+  gap: 10px;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 90px 1fr 36px;
+  align-items: center;
+  gap: 10px;
+}
+
+.barLabel {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.barTrack {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+html[data-theme="light"] .barTrack {
+  background: rgba(15,23,42,0.06);
+  border: 1px solid rgba(15,23,42,0.08);
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(120,160,255,0.55);
+}
+
+.barValue {
+  text-align: right;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.analyticsEmpty {
+  opacity: 0.75;
+  font-size: 13px;
+  padding: 10px 0;
+}
+
+.sparkWrap {
+  height: 170px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+  align-items: end;
+  padding-top: 8px;
+}
+
+.sparkCol {
+  display: flex;
+  align-items: flex-end;
+}
+
+.sparkBar {
+  width: 100%;
+  border-radius: 10px;
+  background: rgba(120,160,255,0.55);
+  border: 1px solid rgba(120,160,255,0.20);
+}
+
+.analyticsHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.analyticsRange {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.rangeBtn {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.rangeBtn:hover {
+  opacity: 1;
+}
+
+.rangeBtn.active {
+  opacity: 1;
+  border-color: rgba(120, 160, 255, 0.35);
+  background: rgba(120, 160, 255, 0.12);
+}
+
+.rangeBtn{
+  border:1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.rangeBtn:hover{
+  opacity: 1;
+}
+
+.rangeBtn.isActive{
+  border-color: rgba(120,160,255,0.45);
+  box-shadow: 0 0 0 3px rgba(120,160,255,0.12);
+}
+
+.analyticsHeaderTop{
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.analyticsHeaderLeft{
+  min-width: 0;
+}
+
+.analyticsHeaderRight{
+  margin-left: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex: 0 0 auto !important;
+}
+
+.analyticsHeaderActions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.analyticsIconBtn{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.rangeRow{
+  display: flex;
+  align-items: center;
+  gap: 10px; /* spacing between toggle and 7D */
+}
+
+.analyticsIconBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.rangePill{
+  height:32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  opacity:0.85;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.2px;
+}
+
+.rangePill:hover{
+  opacity:1;
+}
+
+.rangePill.isActive{
+  background: rgba(120,160,255,0.18);
+  border-color: rgba(120,160,255,0.35);
+  opacity:1;
+}
+
+/* Make cards feel more premium / glassy, but still driven by your theme vars */
+.analyticsCard{
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.healthGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+@media (max-width: 1100px) {
+  .healthGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.analyticsHint {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.insightsCard {
+  margin-top: 14px;
+}
+
+.insightsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.insightItem {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  opacity: 0.9;
+  line-height: 1.35;
+}
+
+.insightDot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 999px;
+  background: rgba(120,160,255,0.55);
+  border: 1px solid rgba(120,160,255,0.25);
+  flex: 0 0 auto;
+}
+
+/* =========================
+   MOBILE HEADER FIX (Phone)
+   ========================= */
+@media (max-width: 520px) {
+  /* make header stack instead of trying to fit in one row */
+  .analyticsHeaderTop {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .analyticsHeaderLeft {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* stop subtitle from looking like it "overlaps" */
+  .analyticsSub {
+    max-width: 100%;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+
+  /* buttons row becomes full-width and wraps */
+  .analyticsHeaderRight {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* make pills not shrink into weird sizes */
+  .rangePill {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  /* push "← Board" to the right (and it can wrap to next line) */
+  .analyticsHeaderRight .rangePill:last-child {
+    margin-left: auto;
+  }
+
+  /* LOADING state uses .rangeRow, fix it too */
+  .rangeRow {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+}

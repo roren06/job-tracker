@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ApplicationStage {
+  SAVED
+  APPLIED
+  INTERVIEW
+  FINAL
+  OFFER
+  REJECTED
+}
+
+model User {
+  id                     String   @id @default(uuid())
+  email                  String   @unique
+  password               String?
+  name                   String?
+  createdAt              DateTime @default(now())
+
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
+
+  applications Application[]
+}
+
+model Application {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  company String
+  role    String
+  stage   ApplicationStage @default(SAVED)
+
+  location    String?
+  salaryRange String?
+  jobUrl      String?
+  notes       String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  position Int @default(0)
+
+  aiGenerations AiGeneration[]
+
+  @@index([userId, stage, position])
+}
+
+model AiGeneration {
+  id            String   @id @default(uuid())
+  userId        String
+  applicationId String
+  action        String
+  mode          String // "live" | "demo"
+  prompt        String?
+  output        String
+  createdAt     DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([applicationId, createdAt])
+}

@@ -1,0 +1,2981 @@
+/* Board.css */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Prevent the page from widening */
+html, body {
+  overflow-x: hidden;
+}
+
+html[data-theme="light"] {
+  --overlayCardBg: rgba(214, 226, 255, 0.205);  /* darker + more transparent */
+  --overlayCardBorder: rgba(37, 100, 235, 0.096);
+  --overlayCardShadow: 0 22px 60px rgba(15,23,42,0.22);
+  --border: rgba(15, 23, 42, 0.12);
+}
+
+/* Light theme */
+:root[data-theme="light"],
+.theme-light {
+  --toastProgBg: rgba(0, 0, 0, 0.08);
+  --toastProgFill: rgba(0, 0, 0, 0.35);
+}
+
+/* Dark theme */
+:root[data-theme="dark"],
+.theme-dark {
+  --toastProgBg: rgba(255, 255, 255, 0.08);
+  --toastProgFill: rgba(255, 255, 255, 0.22);
+}
+
+html[data-theme="dark"] {
+  --dragOverlayBg: rgba(30, 41, 59, 0.92);
+  --shadowLift: 0 18px 45px rgba(0,0,0,0.55);
+  --overlayCardBg: rgba(255, 255, 255, 0.08);
+  --overlayCardBorder: rgba(255, 255, 255, 0.18);
+  background: #0f141b;
+  color: rgba(255,255,255,0.92);
+}
+
+/* 2) Shell / background */
+.boardShell {
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  height: auto;
+  overflow: hidden; /* ✅ lock the page */
+}
+
+/* NO horizontal scrolling */
+.boardGrid {
+  flex: 1;
+  width: 100%;
+  overflow: hidden;  /* <-- kills the bottom scrollbar */
+  padding: 0;        /* remove big paddings that cause overflow */
+}
+
+/* MOBILE: 1 column should be full width */
+@media (max-width: 520px) {
+  .boardColumnsGrid {
+    display: grid;
+    grid-template-columns: 1fr !important; /* force full width */
+    gap: 14px;
+  }
+
+  .boardColumn {
+    width: 100%;
+    min-width: 0 !important; /* key: allow it to shrink/fit */
+  }
+
+  .boardGrid {
+    overflow-x: hidden; /* avoid tiny sideways scroll on mobile */
+  }
+}
+
+/* ✅ Mobile/tablet behavior: columns scroll horizontally */
+@media (max-width: 1100px){
+  .boardGrid{
+    overflow-x: auto;                 /* ✅ allow sideways scroll */
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;             /* room for scrollbar */
+  }
+
+  .boardColumnsGrid{
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(280px, 1fr);  /* ✅ premium column width */
+    grid-template-columns: unset;           /* override repeat(6,...) */
+    width: max-content;                     /* ✅ make grid as wide as content */
+    gap: 14px;
+    padding-right: 12px;
+    scroll-snap-type: x proximity;
+  }
+
+  .boardColumn{
+    scroll-snap-align: start;
+  }
+}
+
+/* ✅ Phone: slightly narrower columns */
+@media (max-width: 600px){
+  .boardColumnsGrid{
+    grid-auto-columns: minmax(260px, 1fr);
+    gap: 12px;
+  }
+
+  .appContainer{
+    padding: 0 14px; /* reduce gutter on phones */
+  }
+
+  .topbarSticky{
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 600px){
+  .boardColumnBody{
+    overflow-y: visible; /* ✅ allow normal page scroll */
+  }
+}
+
+/* 6 columns that SHRINK to fit (no min-width forcing scroll) */
+.boardColumnsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr)); /* KEY */
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+/* 3) Top bar polish */
+.boardTopbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 12px 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.22), transparent);
+  backdrop-filter: blur(10px);
+   margin-bottom: 14px;
+}
+
+.boardTopbarInner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Keep your inner centering, but still allow full width */
+.boardInner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make the app background always cover the whole screen */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden; /* prevents random horizontal scroll */
+}
+
+.boardInput,
+.boardSelect,
+.boardButton {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.boardButton {
+  cursor: pointer;
+  background: var(--panel2);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.boardButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+  border-color: var(--border2);
+}
+
+/* 4) Column + Card base styles */
+.boardColumn {
+  border: 1px solid var(--border);
+  border-radius: 20px;             /* more rounded */
+  background: var(--panel);
+   box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+  overflow: hidden;                 /* keeps rounded corners clean */
+  min-width: 0;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* ✅ critical: allows inner scroll */
+}
+
+html[data-theme="light"] .boardColumn{
+  box-shadow: 0 14px 40px rgba(15,23,42,0.08);
+}
+
+
+.boardColumnHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 14px;   /* 👈 more breathing room */
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+html[data-theme="light"] .boardColumnHeader {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.70));
+}
+
+html[data-theme="dark"] .boardColumnHeader {
+  background: linear-gradient(to bottom, rgba(10,12,18,0.65), rgba(10,12,18,0.35));
+}
+
+.boardColumnHeader::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border2), transparent);
+  opacity: 0.8;
+}
+
+
+.boardColumnTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.boardPill {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+/* Column scroll area */
+.boardColumnBody {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: none;   /* ✅ remove 70vh limit */
+  overflow-y: auto;   /* ✅ column scroll only */
+  padding-bottom: 10px;
+}
+
+.boardColumn:hover {
+  box-shadow: var(--glow);
+  border-color: var(--border2);
+}
+
+/* Inner padding stays consistent even with sticky header */
+.boardColumnBodyInner {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+/* SIDE TO SIDE PARA SAKTO SA GITNA */
+/* If you still have extra padding somewhere, this helps avoid overflow */
+.boardContainer {
+  width: 100%;
+  padding: 0;
+}
+
+.boardCard {
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.20);
+  padding: 10px;
+  cursor: grab;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  position: relative;
+}
+
+/* =========================
+   Card surface (theme-aware)
+   ========================= */
+
+/* Dark mode: softer gray premium surface */
+:root[data-theme="dark"] .boardCard{
+  background: rgba(255,255,255,0.06); /* soft gray instead of near-black */
+  border-color: rgba(255,255,255,0.10);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+}
+
+/* Light mode: subtle warm gray surface (still premium) */
+:root[data-theme="light"] .boardCard{
+  background: rgba(15,23,42,0.04);
+  border-color: rgba(15,23,42,0.10);
+  box-shadow: 0 10px 24px rgba(15,23,42,0.10);
+}
+
+/* Optional: hover lift (both) */
+.boardCard:hover{
+  border-color: rgba(120,160,255,0.22);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.28);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Card dropdown (select)
+   ========================= */
+
+/* Light mode dropdown: blend with card */
+:root[data-theme="light"] .boardCard select{
+  width: 100%;
+  background: rgba(255,255,255,0.65);
+  border: 1px solid rgba(15,23,42,0.12);
+  color: rgba(15,23,42,0.88);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 600;
+  box-shadow: 0 6px 14px rgba(15,23,42,0.06);
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+:root[data-theme="light"] .boardCard select:hover{
+  background: rgba(255,255,255,0.85);
+}
+
+:root[data-theme="light"] .boardCard select:focus{
+  outline: none;
+  border-color: rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.12), 0 8px 18px rgba(15,23,42,0.08);
+}
+
+/* Dark mode dropdown: premium blend */
+:root[data-theme="dark"] .boardCard select{
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.88);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+:root[data-theme="dark"] .boardCard select:hover{
+  background: rgba(255,255,255,0.10);
+}
+
+:root[data-theme="dark"] .boardCard select:focus{
+  outline: none;
+  border-color: rgba(120,160,255,0.35);
+  box-shadow: 0 0 0 4px rgba(120,160,255,0.14);
+}
+
+/* Optional: make option list readable (works in most browsers) */
+:root[data-theme="dark"] .boardCard select option{
+  background: #0f1115;
+  color: rgba(255,255,255,0.92);
+}
+:root[data-theme="light"] .boardCard select option{
+  background: #ffffff;
+  color: rgba(15,23,42,0.92);
+}
+
+html[data-theme="light"] .boardCard {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.85),
+    rgba(255,255,255,0.72)
+  );
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(15,23,42,0.08);
+
+  box-shadow:
+    0 14px 40px rgba(15,23,42,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+html[data-theme="light"] .drawerPanel input,
+html[data-theme="light"] .drawerPanel select,
+html[data-theme="light"] .drawerPanel textarea {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(15,23,42,0.08);
+
+  box-shadow:
+    inset 0 1px 2px rgba(15,23,42,0.05);
+}
+
+
+
+.cardQuickDelete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+
+  border: 1px solid rgba(255, 90, 90, 0.25);
+  background: rgba(255, 90, 90, 0.08);
+  color: rgba(255, 140, 140, 0.9);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 13px;
+  line-height: 1;
+
+  opacity: 0;
+  transform: translateY(-2px);
+  pointer-events: none;
+
+  transition: opacity 120ms ease, transform 120ms ease, background 120ms ease;
+}
+
+.boardCard:hover .cardQuickDelete {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.cardQuickDelete:hover {
+  background: rgba(255, 90, 90, 0.16);
+}
+
+.cardQuickDelete:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.boardCard:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+  border-color: rgba(255,255,255,0.22);
+}
+
+html[data-theme="light"] .boardCard:hover {
+  border-color: rgba(0,0,0,0.14);
+}
+
+.boardCardTitle {
+  font-weight: 750;
+}
+
+.boardCardSub {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.boardCardSelect {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.boardCard {
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.boardCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--borderStrong);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.45);
+}
+
+/* Sticky container (just positioning) */
+.topbarSticky {
+  position: sticky;
+  top: 0;
+  padding: 18px 24px;
+  margin-bottom: 18px;
+  overflow: visible !important;
+  z-index: 999; /* higher than board */
+}
+
+.topbarPill{
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin: 12px auto;
+  min-height: 68px;
+
+  display: flex;
+  grid-template-columns: auto 380px 1fr; /* shrink the middle */
+  grid-template-areas: "brand search controls";
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 16px;
+  border-radius: 22px;
+  backdrop-filter: blur(12px);
+  overflow: visible; /* prevents any tiny bleed */
+  position: relative;
+  z-index: 999;
+}
+
+@media (max-width: 1100px) {
+  /* 2 rows:
+     Row 1: brand | right controls
+     Row 2: search (left) | filters/actions (right)
+  */
+  .topbarPill{
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand right"
+      "search controls";
+    gap: 12px 14px;
+    align-items: center;
+  }
+
+  /* map sections */
+.topbarLeft { grid-area: brand; }
+.topbarRight { grid-area: controls; }
+
+  .topbarCenter{
+    grid-area: controls;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* ✅ make search shorter (not full width) */
+  .topbarSearch .topInput{
+    width: min(420px, 100%);
+    max-width: 420px;
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 640px){
+  .topbarPill{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "search"
+      "controls"
+      "right";
+  }
+
+.topInput{
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .topbarRight{
+    justify-content: space-between;
+  }
+}
+
+:root[data-theme="dark"] .topbarPill {
+  background: rgba(15, 15, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.topInput{
+  width: min(520px, 100%);     /* ✅ won’t be too long */
+  max-width: 100%;
+}
+
+/* Dark mode pill */
+:root[data-theme="dark"] .topbarPill {
+  background: rgba(15, 15, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="light"] .topbarPill {
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+}
+
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+/* brand */
+.brandTitle{
+  font-weight: 800;
+  font-size: 25px;
+  white-space: nowrap;
+}
+
+.topbarCenter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbarCenter .topInput { width: 180px; }
+.topbarCenter .topSelect { width: 110px; }
+
+/* RIGHT side stays in one line */
+/* right controls */
+.topbarRight{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+/* Make controls compact so they fit */
+.topbarControls .topInput{
+  width: 140px;      /* keeps spacing consistent */
+  min-width: 0;
+}
+
+/* ---------- FIX THE "MID WIDTH" BUG RANGE ---------- */
+/* Around 1000–1100px, stop forcing 1-row layout and wrap nicely */
+@media (max-width: 1120px){
+  .topbarPill{
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  /* put search on its own row so nothing gets pushed out */
+  .topbarSearch{
+    order: 3;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .topbarSearch .topInput{
+    max-width: none;
+  }
+
+  /* make right side full width so profile never clips */
+  .topbarRight{
+    order: 2;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .topbarControls{
+    flex-wrap: wrap;
+  }
+}
+.topbarControls .topSelect { width: 96px; }
+
+/* Group only the form controls */
+.topbarControls{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.totalText {
+  opacity: 0.75;
+  font-size: 14px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+/* Tablets / smaller laptops */
+@media (max-width: 1100px){
+  .topbarPill{
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "brand controls"
+      "search search";
+    row-gap: 12px;
+  }
+
+  .topInput{
+    width: 100%;
+  }
+}
+
+/* Phones */
+@media (max-width: 700px){
+  .topbarPill{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "search"
+      "controls";
+  }
+
+  .topbarRight{
+    flex-wrap: wrap;     /* ✅ controlled wrapping */
+    justify-content: flex-start;
+    row-gap: 10px;
+  }
+}
+
+/* Inputs */
+.topInput,
+.topSelect {
+  height: 34px;
+  border-radius: 10px;
+  padding: 0 10px;
+
+  background: var(--panel2);
+  color: var(--text);
+
+  border: 1px solid var(--border2);
+  outline: none;
+}
+
+:root[data-theme="dark"] .topInput,
+:root[data-theme="dark"] .topSelect {
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+}
+
+.topInput {
+  width: 220px;
+}
+
+.topSelectWrapper {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+/* === Make TOP select match TOP inputs in both themes === */
+.topSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  height: 34px;
+  width: 110px;
+
+  padding: 0 32px 0 10px; /* ← extra right padding for arrow */
+
+  border-radius: 10px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+}
+
+.topSelectArrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+}
+
+html[data-theme="light"] .topSelectArrow {
+  color: rgba(15,23,42,0.55);
+}
+
+/* Buttons */
+.primaryBtn,
+.logoutBtn,
+.iconBtn {
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.08);
+  padding: 0 12px;
+}
+
+.primaryBtn:disabled,
+.topInput:disabled,
+.topSelect:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dangerBtn {
+  height: 34px;
+  border-radius: 10px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 90, 90, 0.35);
+  background: rgba(255, 90, 90, 0.12);
+  color: rgba(255, 140, 140, 0.95);
+  cursor: pointer;
+}
+
+.dangerBtn:hover {
+  background: rgba(255, 90, 90, 0.18);
+}
+
+.dangerBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.drawerBtn {
+  height: 36px;
+  border-radius: 12px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.drawerBtn:hover {
+  transform: translateY(-1px);
+  border-color: var(--border2);
+  box-shadow: var(--shadowSoft);
+}
+
+.drawerBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* primary action */
+.drawerBtn.primary {
+  border-color: rgba(120,160,255,0.28);
+  background: rgba(120,160,255,0.12);
+}
+
+/* cancel button (more subtle) */
+.drawerBtn.ghost {
+  background: rgba(255,255,255,0.06);
+}
+html[data-theme="light"] .drawerBtn.ghost {
+  background: rgba(15,23,42,0.05);
+}
+
+html[data-theme="light"] .drawerField {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(15, 23, 42, 0.10);
+}
+
+
+:root[data-theme="dark"] .primaryBtn,
+:root[data-theme="dark"] .logoutBtn,
+:root[data-theme="dark"] .iconBtn {
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.92);
+}
+
+.iconBtn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 12px;   /* ✅ not pill */
+  display: grid;
+  place-items: center;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] button {
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+[data-theme="dark"] input::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+/* FULL PAGE SHOULD MATCH THE APP BG (no gray side) */
+.appShell {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-top: 24px;
+  padding-bottom: 0;   /* remove bottom gap */
+}
+
+
+/* IMPORTANT: remove max-width so it doesn't leave a right-side gap */
+.appContainer {
+  width: 100%;
+  max-width: none;   /* <-- this is what removes the gray right area */
+  margin: 0;
+  padding: 0 24px;   /* normal page gutter */
+}
+
+.appShell,
+.boardShell {
+  background:
+    var(--bgGlow1),
+    var(--bgGlow2),
+    var(--bgGlow3),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+}
+
+/* Empty state */
+.emptyState {
+  border: 1px dashed var(--border2);
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  background: rgba(255,255,255,0.02);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
+}
+
+html[data-theme="light"] .emptyState {
+  background: rgba(0,0,0,0.02);
+}
+
+.emptyIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,0.04);
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.emptyTitle {
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.emptySub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.toastStack{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  display: grid;
+  gap: 10px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast{
+  position: relative;
+  overflow: hidden;
+  min-width: 260px;
+  max-width: 360px;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  box-shadow: var(--shadowSoft);
+}
+
+/* Make sure the toast itself can receive clicks */
+.toast,
+.toast * {
+  pointer-events: auto;
+}
+
+/* Progress bg must NEVER block clicks */
+.toastProgressBg,
+.toastProgressBg::after {
+  pointer-events: none;
+}
+
+.toast.success{ border-color: rgba(60, 220, 140, 0.25); }
+.toast.error{ border-color: rgba(255, 90, 90, 0.25); }
+
+.toastMsg{ 
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--text-primary);
+ }
+
+.toastItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 16px;
+  border-radius: 14px;
+}
+
+.toastActions{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toastAction{
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.toastClose {
+  width: 30px;
+  height: 26px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0;
+  font-size: 10px;
+}
+
+.toastClose span {
+  display: block;
+  line-height: 1;
+  font-size: 14px;
+  transform: translateY(-0.5px); /* tiny optical centering */
+}
+.toastClose:hover{
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes toastSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Progress container */
+.toastTimer {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.toastTimer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.4);
+  transform-origin: left;
+  animation-name: toastFill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes toastFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Optional: color per type */
+.toastItem.success .toastTimer::after {
+  background: rgba(70, 255, 160, 0.55);
+}
+
+.toastItem.error .toastTimer::after {
+  background: rgba(255, 90, 90, 0.55);
+}
+
+/* ✅ progress as a background layer */
+.toastProgressBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.14;
+  background: var(--toastProgBg);
+}
+
+/* the filling layer */
+.toastProgressBg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--toastProgFill);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: toastFill var(--toastDur) linear forwards;
+}
+
+/* keep content above it */
+.toastRow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+@keyframes toastFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* =========================
+   Skeleton Loading (Premium)
+========================= */
+
+.skel {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+html[data-theme="light"] .skel {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-60%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.20),
+    transparent
+  );
+  animation: skelShimmer 1.1s ease-in-out infinite;
+}
+
+html[data-theme="light"] .skel::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+}
+
+@keyframes skelShimmer {
+  0% { transform: translateX(-60%); }
+  100% { transform: translateX(60%); }
+}
+
+/* Topbar skeleton layout */
+.skeletonTopbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.skeletonCenter {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.skeletonRight {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.skelTitle { width: 120px; height: 16px; border-radius: 999px; }
+.skelInput { width: 190px; height: 34px; border-radius: 10px; }
+.skelSelect { width: 110px; height: 34px; border-radius: 10px; }
+.skelBtn { width: 70px; height: 34px; border-radius: 10px; }
+.skelSmall { width: 70px; height: 14px; border-radius: 999px; opacity: 0.9; }
+.skelIcon { width: 34px; height: 34px; border-radius: 10px; }
+
+@media (max-width: 900px) {
+  .skelInput { width: 160px; }
+}
+
+/* Column skeleton */
+.skeletonColumn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.skeletonHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.skelColTitle { width: 90px; height: 14px; border-radius: 999px; }
+.skelPill { width: 28px; height: 18px; border-radius: 999px; }
+
+/* Skeleton cards */
+.skeletonCard {
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+}
+
+html[data-theme="light"] .skeletonCard {
+  background: rgba(0,0,0,0.02);
+}
+
+.skelLine1 { width: 70%; height: 14px; border-radius: 8px; }
+.skelLine2 { width: 55%; height: 12px; border-radius: 8px; margin-top: 8px; opacity: 0.9; }
+.skelLine3 { width: 100%; height: 30px; border-radius: 10px; margin-top: 10px; opacity: 0.75; }
+
+/* =========================
+   Drawer (Light/Dark Clean)
+========================= */
+
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+html[data-theme="light"] .drawerOverlay {
+  background: rgba(15, 23, 42, 0.096);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.drawerPanel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 420px;
+  max-width: 92vw;       /* mobile safe */
+  box-sizing: border-box;
+  padding: 18px 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background: var(--panel);
+  color: var(--text);
+  border-left: 1px solid var(--border);
+  box-shadow: -18px 0 60px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="light"] .drawerPanel {
+  background: rgba(255, 255, 255, 0.295);   /* ← transparent */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border-left: 1px solid rgba(15, 23, 42, 0.08);
+
+  box-shadow:
+    -20px 0 60px rgba(15, 23, 42, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+
+
+
+.drawerHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.drawerTitle {
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+}
+
+.drawerCloseBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.drawerCloseBtn:hover {
+  border-color: var(--border2);
+  box-shadow: var(--shadowSoft);
+}
+
+.drawerForm {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  min-width: 0;          /* IMPORTANT in flex/grid layouts */
+
+  /* ✅ prevents grid items from expanding the drawer width */
+  grid-template-columns: minmax(0, 1fr);
+
+  /* ✅ ensures children are allowed to shrink */
+  min-width: 0;
+}
+
+.drawerForm > * {
+  min-width: 0;
+}
+
+.drawerLabel {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.drawerField {
+  width: 100%;
+  height: 36px;
+  border-radius: 12px;
+  padding: 0 12px;
+
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  outline: none;
+}
+
+.drawerField:focus {
+  box-shadow: var(--ring);
+}
+
+.drawerTextarea {
+  height: auto;
+  min-height: 160px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.drawerFooter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.drawerFooter button {
+  height: 36px;
+  border-radius: 12px;
+  padding: 0 14px;
+}
+
+/* ===== Force readable <option> text in dropdown list ===== */
+
+/* Dark mode dropdown menu */
+html[data-theme="dark"] .drawerPanel select,
+html[data-theme="dark"] .boardCard select,
+html[data-theme="dark"] .topSelect {
+  color: rgba(255,255,255,0.92);
+}
+
+html[data-theme="dark"] .drawerPanel select option,
+html[data-theme="dark"] .boardCard select option,
+html[data-theme="dark"] .topSelect option {
+  background: #0f141b !important;
+  color: rgba(255,255,255,0.92) !important;
+}
+
+/* Light mode dropdown menu */
+html[data-theme="light"] .drawerPanel select option,
+html[data-theme="light"] .boardCard select option,
+html[data-theme="light"] .topSelect option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* ===== Dark mode dropdown – grayish black glass vibe ===== */
+
+html[data-theme="dark"] .drawerPanel select option,
+html[data-theme="dark"] .boardCard select option,
+html[data-theme="dark"] .topSelect option {
+  background: #1b1f27 !important;   /* grayish black */
+  color: rgb(255, 255, 255) !important;
+}
+
+/* Selected option */
+html[data-theme="dark"] .drawerPanel select option:checked,
+html[data-theme="dark"] .boardCard select option:checked,
+html[data-theme="dark"] .topSelect option:checked {
+  background: rgba(120,160,255,0.35) !important; /* your blue accent */
+  color: white !important;
+}
+
+/* Card dropdown (light mode blend) */
+:root[data-theme="light"] .boardCard select{
+  width: 100%;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(15,23,42,0.12);
+  color: rgba(15,23,42,0.85);
+
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 600;
+
+  box-shadow: 0 6px 14px rgba(15,23,42,0.06);
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+:root[data-theme="light"] .boardCard select:hover{
+  background: rgba(255,255,255,0.8);
+}
+
+:root[data-theme="light"] .boardCard select:focus{
+  outline: none;
+  border-color: rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.12), 0 8px 18px rgba(15,23,42,0.08);
+}
+
+.drawerAiActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.drawerAiOutput {
+  margin-top: 12px;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--panel2);
+}
+
+.drawerAiOutputHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.drawerAiOutputTitle {
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.drawerAiOutputBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.drawerAiOutputBody {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.drawerAiHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aiModeBadge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--panel2);
+  opacity: 0.9;
+}
+
+.aiModeBadge.live {
+  /* subtle “good” state */
+  box-shadow: 0 0 0 2px rgba(0, 200, 120, 0.12);
+}
+
+.aiModeBadge.demo {
+  /* subtle “neutral” state */
+  box-shadow: 0 0 0 2px rgba(120, 140, 255, 0.12);
+}
+
+.drawerAiPrompt {
+  margin-top: 10px;
+}
+
+.aiPanelClose {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.aiSkeleton {
+  display: grid;
+  gap: 10px;
+}
+
+.aiSkelLine {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.aiSkelLine.short {
+  width: 70%;
+}
+
+.aiSkelLine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-40%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.10),
+    transparent
+  );
+  animation: aiShimmer 1.1s infinite;
+}
+
+@keyframes aiShimmer {
+  0% { transform: translateX(-40%); }
+  100% { transform: translateX(140%); }
+}
+
+/* AI action carousel */
+.drawerAiCarousel {
+  margin-top: 10px;
+
+  /* IMPORTANT: scroll container */
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /* makes it smooth on mobile */
+  -webkit-overflow-scrolling: touch;
+
+  /* ensure it can shrink and still scroll */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;            /* IMPORTANT */
+
+  /* snap feel */
+  scroll-snap-type: x proximity;
+
+  /* gives you a little room for scrollbar */
+  padding-bottom: 8px;
+
+  /* prevent the row from affecting parent width */
+  box-sizing: border-box;
+
+  /* optional */
+  scroll-snap-type: x proximity;
+  padding-bottom: 8px;
+}
+
+.drawerAiCarouselTrack {
+  display: inline-flex; /* IMPORTANT: not normal flex */
+  gap: 10px;
+
+  /* IMPORTANT: forces the track to be as wide as content */
+  width: max-content;
+  /* IMPORTANT: keep track from stretching parent */
+  max-width: none;
+
+  padding: 2px 2px;
+}
+
+.drawerAiChip {
+  scroll-snap-align: start;
+  white-space: nowrap;
+
+  border: 1px solid var(--border2);
+  background: var(--panel2);
+  color: var(--text-primary);
+
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.drawerAiChip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.drawerAiChip.isPrimary {
+  border-color: rgba(120, 140, 255, 0.45);
+  box-shadow: 0 0 0 2px rgba(120, 140, 255, 0.12);
+}
+
+/* Auto-scroll behavior */
+.drawerAiCarousel.isAuto .drawerAiCarouselTrack {
+  animation: aiChipMarquee 14s linear infinite;
+}
+
+.drawerAiCarousel.isPaused .drawerAiCarouselTrack {
+  animation-play-state: paused;
+}
+
+/* Accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .drawerAiCarousel.isAuto .drawerAiCarouselTrack {
+    animation: none;
+  }
+}
+
+/* Move track left; we loop back to start */
+@keyframes aiChipMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-45%);
+  }
+}
+
+/* Force horizontal scrollbar to always be visible */
+.drawerAiCarousel {
+  overflow-x: scroll; /* not auto — always show scrollbar */
+  overflow-y: hidden;
+}
+
+/* Chrome, Edge, Safari */
+.drawerAiCarousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.drawerAiCarousel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.drawerAiCarousel::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 140, 0.35);
+  border-radius: 999px;
+}
+
+.drawerAiCarousel::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 160, 0.55);
+}
+
+/* Firefox */
+.drawerAiCarousel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 140, 140, 0.35) transparent;
+}
+
+.aiPanelOverlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding-right: min(420px, 92vw);
+
+  background: rgba(0,0,0,0.45);
+
+  z-index: 2000;
+}
+
+.aiPanel {
+  width: min(700px, 92vw);
+  max-height: 80vh;
+  background: var(--panel);
+  border-radius: 14px;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.aiPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.aiPanelBody {
+  padding: 18px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.aiPanelFooter {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.aiPanelControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: auto;
+}
+
+.aiToggleGroup {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.aiToggle {
+  background: transparent;
+  color: var(--text);
+  border: 0;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.aiToggle.isActive {
+  background: var(--panel2);
+  opacity: 1;
+}
+
+.aiCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.drawerAiHistory {
+  margin-top: 8px;
+}
+
+.aiHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.aiHistoryItem {
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--panelAlt);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.aiHistoryItem:hover {
+  background: var(--panelHover);
+}
+
+.aiHistoryAction {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.aiHistoryDate {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.aiMetaRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.aiUsagePill {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  opacity: 0.9;
+}
+
+.headerBtn {
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.headerBtn:hover {
+  background: var(--hover);
+}
+
+.headerBtn.ghost {
+  background: transparent;
+}
+
+.navBtn {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 12px; /* ✅ matches icon button shape */
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  cursor: pointer;
+}
+
+html[data-theme="light"] .navBtn {
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(15, 23, 42, 0.05);
+  color: #0f172a;
+}
+
+.navBtn:hover {
+  filter: brightness(1.08);
+}
+
+/* === Collapsible Drawer Section (AI Assistant) === */
+
+.drawerSection {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.02);
+}
+
+html[data-theme="light"] .drawerSection {
+  background: rgba(0,0,0,0.02);
+}
+
+.drawerSectionHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 6px 2px;
+
+  border: 0;
+  cursor: pointer;
+
+  background: transparent;
+  color: var(--text);
+
+  font-size: 13px;
+}
+
+.drawerChevron {
+  width: 18px;
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 160ms ease;
+  opacity: 0.85;
+}
+
+.drawerChevron.open {
+  transform: rotate(90deg);
+}
+
+.drawerSectionTitle {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.drawerSectionMeta {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.drawerSectionBody {
+  padding-top: 12px;
+}
+
+/* ===== Premium Profile dropdown ===== */
+
+.profileMenu {
+  position: relative;
+  z-index: 2000;
+  display: inline-flex;
+}
+
+/* Reuse logoutBtn (pill) and just enhance layout */
+.profileBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px; /* same as your buttons */
+  height: 34px;    /* same as your buttons */
+  line-height: 34px;
+}
+
+.profileBtn{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;              /* keeps pill symmetric */
+  height: 34px;                 /* matches your other buttons */
+  border-radius: 999px;
+}
+
+
+/* theme-friendly avatar bg */
+:root[data-theme="light"] .profileAvatar {
+  background: rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
+:root[data-theme="dark"] .profileAvatar {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* prevent label from pushing chevron weirdly */
+.profileLabel{
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* chevron alignment */
+.profileChevron{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin-left: 2px;
+  opacity: 0.85;
+}
+
+/* ===== Avatar fix (emoji baseline issue) ===== */
+.profileAvatar{
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 22px;
+}
+
+.profileAvatarIcon{
+  display: block;
+  line-height: 1;
+  font-size: 14px;              /* tune: 13–15 if you want */
+  transform: translateY(-0.5px);/* tiny optical centering */
+}
+
+/* theme-friendly avatar background */
+:root[data-theme="light"] .profileAvatar{
+  background: rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
+:root[data-theme="dark"] .profileAvatar{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ===== Profile dropdown (both themes) ===== */
+.profileDropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 220px;
+  padding: 10px;
+  border-radius: 14px;
+  z-index: 9999; /* force it above topbar/board */
+
+  /* IMPORTANT: not glass */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Each item is its own "button card" */
+.profileItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+
+  /* RESET global button styles */
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  outline: none;
+
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  /* prevent global hover border-color behavior */
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+/* stop the global :focus-visible ring from looking weird here */
+.profileItem:focus,
+.profileItem:focus-visible {
+  outline: none;
+}
+
+/* divider */
+.profileDivider {
+  height: 1px;
+  margin: 8px 6px;
+}
+
+/* danger */
+.profileItem.danger {
+  color: #ef4444; /* consistent red */
+}
+.profileItem.danger:hover {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+/* ===== Light mode (solid, premium) ===== */
+:root[data-theme="light"] .profileDropdown {
+  background: #ffffff; /* SOLID */
+  border: 1px solid rgba(0,0,0,0.10);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+}
+
+:root[data-theme="light"] .profileItem {
+  color: rgba(17, 24, 39, 0.90);
+  background: #f8fafc; /* SOLID item bg */
+  border-color: rgba(0,0,0,0.08);
+}
+
+:root[data-theme="light"] .profileItem:hover {
+  background: #eef2f7;           /* NOT transparent */
+  border-color: rgba(0,0,0,0.12);
+}
+
+:root[data-theme="light"] .profileDivider {
+  background: rgba(0,0,0,0.10);
+}
+
+/* ===== DARK THEME – Neutral Gray (No Blue) ===== */
+
+:root[data-theme="dark"] .profileDropdown {
+  background: #14171b; /* neutral charcoal */
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.75);
+}
+
+:root[data-theme="dark"] .profileItem {
+  background: #1b1f24; /* true gray */
+  border: 1px solid rgba(255,255,255,0.06);
+  color: rgba(235,240,245,0.92);
+}
+
+:root[data-theme="dark"] .profileItem:hover {
+  background: #22272e; /* slightly lighter neutral gray */
+  border-color: rgba(255,255,255,0.10);
+}
+
+/* divider */
+:root[data-theme="dark"] .profileDivider {
+  background: rgba(255,255,255,0.06);
+}
+
+/* logout */
+:root[data-theme="dark"] .profileItem.danger {
+  color: #ff5a5a;
+}
+
+:root[data-theme="dark"] .profileItem.danger:hover {
+  background: rgba(255, 90, 90, 0.14);
+  border-color: rgba(255, 90, 90, 0.35);
+}
+
+/* =========================
+   Premium Profile Dropdown
+   ========================= */
+
+.profileDropdown {
+  min-width: 240px;
+  padding: 10px;
+  border-radius: 16px;
+  z-index: 100;
+  display: grid;
+  gap: 10px;
+
+  /* premium shadow */
+  box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+}
+
+/* items = "soft cards" */
+.profileItem {
+  height: 44px;
+  border-radius: 14px;
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  font-weight: 600;
+  letter-spacing: 0.1px;
+
+  /* smooth */
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.profileItem:hover {
+  transform: translateY(-1px);
+}
+
+.profileDivider {
+  height: 1px;
+  margin: 2px 6px;
+}
+
+/* ===== LIGHT THEME ===== */
+:root[data-theme="light"] .profileDropdown {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.10);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.16);
+}
+
+:root[data-theme="light"] .profileItem {
+  background: #f6f8fc;
+  border: 1px solid rgba(0,0,0,0.08);
+  color: rgba(17, 24, 39, 0.92);
+}
+
+:root[data-theme="light"] .profileItem:hover {
+  background: #eef2f7;
+  border-color: rgba(0,0,0,0.12);
+}
+
+:root[data-theme="light"] .profileDivider {
+  background: rgba(0,0,0,0.10);
+}
+
+/* ===== DARK THEME ===== */
+:root[data-theme="dark"] .profileDropdown {
+  background: #0f141b;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 26px 90px rgba(0,0,0,0.70);
+}
+
+:root[data-theme="dark"] .profileItem {
+  background: #151c26;
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(230,237,243,0.92);
+}
+
+:root[data-theme="dark"] .profileItem:hover {
+  background: #1b2431;
+  border-color: rgba(255,255,255,0.14);
+}
+
+:root[data-theme="dark"] .profileDivider {
+  background: rgba(255,255,255,0.10);
+}
+
+/* ===== Danger / Logout ===== */
+.profileItem.danger {
+  color: #ef4444;
+}
+
+:root[data-theme="light"] .profileItem.danger:hover {
+  background: rgba(239, 68, 68, 0.10);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+:root[data-theme="dark"] .profileItem.danger:hover {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.30);
+}
+
+/* ===== Profile dropdown – DARK (neutral gray, NO blue) ===== */
+[data-theme="dark"] .profileDropdown{
+  background: #14171b !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.75) !important;
+}
+
+[data-theme="dark"] .profileItem{
+  background: #1b1f24 !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  color: rgba(235,240,245,0.92) !important;
+}
+
+[data-theme="dark"] .profileItem:hover{
+  background: #22272e !important;
+  border-color: rgba(255,255,255,0.10) !important;
+}
+
+[data-theme="dark"] .profileDivider{
+  background: rgba(255,255,255,0.06) !important;
+}
+
+[data-theme="dark"] .profileItem.danger{
+  color: #ff5a5a !important;
+}
+
+[data-theme="dark"] .profileItem.danger:hover{
+  background: rgba(255, 90, 90, 0.14) !important;
+  border-color: rgba(255, 90, 90, 0.35) !important;
+}
+
+/* Neutral premium background (no purple) */
+html[data-theme="light"] .boardShell{
+  background: radial-gradient(1200px 700px at 20% 10%,
+    rgba(15,23,42,0.06),
+    transparent 60%),
+    var(--bg);
+}
+
+html[data-theme="dark"] .boardShell{
+  background: radial-gradient(1200px 700px at 20% 10%,
+    rgba(255,255,255,0.04),
+    transparent 60%),
+    var(--bg);
+}
+
+[data-theme="light"] .appShell,
+[data-theme="light"] .boardShell{
+  background: var(--bg);
+}
+
+/* =========================
+   Drawer overlay (blur + layering)
+   ========================= */
+.drawerOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 9999; /* must be higher than topbarSticky */
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.drawerPanel{
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: min(420px, 92vw);
+  overflow: auto;
+
+  /* premium panel */
+  background: rgba(18,20,22,0.92);
+  border-left: 1px solid rgba(255,255,255,0.10);
+  box-shadow: -30px 0 80px rgba(0,0,0,0.55);
+}
+
+/* make sure your topbar doesn't sit above the drawer */
+.topbarSticky{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  overflow: visible; /* don't clip dropdown */
+}
+
+/* =========================
+   Drawer fields (consistent styling)
+   ========================= */
+.drawerField{
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.drawerField textarea,
+textarea.drawerField{
+  height: auto;
+  padding: 12px;
+  resize: vertical;
+  min-height: 140px;
+}
+
+/* Fix select looking different */
+select.drawerField{
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+}
+
+/* Premium focus (no blue fill) */
+.drawerField:focus{
+  border-color: rgba(120,160,255,0.35);
+  box-shadow: 0 0 0 4px rgba(120,160,255,0.14);
+}
+
+/* If your browser paints blue when focused/active */
+.drawerField:focus-visible{
+  outline: none;
+}
+
+/* Light mode version */
+:root[data-theme="light"] .drawerPanel{
+  background: rgba(255,255,255,0.86);
+  border-left: 1px solid rgba(0,0,0,0.08);
+  box-shadow: -30px 0 70px rgba(0,0,0,0.18);
+}
+
+:root[data-theme="light"] .drawerField{
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(0,0,0,0.04);
+  color: #0b1220;
+}
+
+:root[data-theme="light"] .drawerField:focus{
+  border-color: rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
+}
+
+/* =========================
+   RESPONSIVE KANBAN LAYOUT
+   ========================= */
+
+/* Better mobile viewport height handling */
+.boardShell{
+  min-height: 100dvh;
+  height: auto;
+}
+
+/* Desktop: keep full 6-column grid */
+.boardColumnsGrid{
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+/* ===== Kanban responsive: horizontal scroll container ===== */
+
+/* The board area should own the horizontal scroll, not the page */
+.boardGrid {
+  flex: 1;
+  width: 100%;
+  padding: 0;
+  overflow-x: auto;   /* ✅ allow horizontal scroll here */
+  overflow-y: hidden;
+}
+
+/* Turn the 6 columns into a horizontal track on smaller screens */
+@media (max-width: 1200px) {
+  .boardColumnsGrid {
+    display: flex;
+    gap: 16px;
+    width: max-content;     /* allows horizontal scrolling */
+    min-width: 100%;
+  }
+
+  .boardColumn {
+    flex: 0 0 320px;        /* fixed column width */
+    max-width: 85vw;        /* mobile-friendly */
+  }
+}
+
+/* Keep your normal desktop layout as-is */
+
+/* Tablet and below */
+@media (max-width: 1024px) {
+  .topbarPill {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .topbarLeft,
+  .topbarRight {
+    width: 100%;
+  }
+
+  .topbarControls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .topbarControls .topInput {
+    flex: 1 1 160px;
+    min-width: 160px;
+  }
+
+  .topSelectWrapper {
+    flex: 1 1 140px;
+    min-width: 140px;
+  }
+
+  .primaryBtn {
+    flex: 0 0 auto;
+  }
+
+  .topbarRight {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .topbarActions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+/* Phone */
+@media (max-width: 520px) {
+  .topbarControls .topInput,
+  .topSelectWrapper,
+  .primaryBtn {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .topbarActions {
+    justify-content: flex-start;
+  }
+}
+
+.boardColumn {
+  height: calc(100vh - 160px); /* adjust if needed */
+  min-height: 520px;
+}
+
+/* ===== Topbar: force safe wrapping to avoid horizontal overflow ===== */
+.topbarPill,
+.topbarLeft,
+
+.topbarRight,
+.topbarControls {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .topbarControls {
+    flex-wrap: wrap;
+  }
+
+  .topInput {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .boardColumnsGrid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(320px, 1fr);
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 12px; /* room for scrollbar */
+    scroll-snap-type: x mandatory;
+  }
+
+  .boardColumn {
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 520px) {
+  .boardColumnsGrid {
+    grid-auto-columns: 88vw; /* phone-friendly */
+  }
+}
+
+.topSearchInput {
+  min-width: 240px;
+  flex: 2 1 280px;
+}
+
+@media (max-width: 520px) {
+  .topSearchInput {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}
+
+/* Keep other inputs smaller */
+.topbarControls .topInput{
+  width: 140px;
+}
+/* DESKTOP: clean, stable topbar spacing */
+@media (min-width: 1024px) {
+  .topbarPill {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* left / center / right */
+    align-items: center;
+    gap: 18px;
+  }
+
+  .topbarLeft {
+    min-width: max-content;
+  }
+
+  .topbarSearch {
+    min-width: 0;
+  }
+
+  .topbarSearch .topInput {
+    width: 100%;
+    min-width: 0; /* IMPORTANT so it can shrink */
+  }
+
+  .topbarRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: max-content;
+  }
+
+  .topbarControls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap; /* prevent weird stacking on desktop */
+  }
+
+  /* prevent inputs from shrinking into tiny pills */
+  .topbarControls .topInput {
+    min-width: 140px;
+  }
+
+  .topSelectWrapper {
+    min-width: 120px;
+  }
+}
+
+/* TABLET: 2 columns */
+@media (min-width: 521px) and (max-width: 1023px) {
+  .boardColumnsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .boardGrid { overflow-x: auto; }
+
+  .boardColumn {
+    min-width: 0;
+  }
+}
+/* DESKTOP: force topbar into a single flex row (no empty grid column) */
+@media (min-width: 900px) {
+  .topbarPill {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .topbarLeft {
+    flex: 0 0 auto;
+  }
+
+  /* Search should grow but not become huge */
+  .topbarSearch {
+    flex: 1 1 520px;     /* makes search area grow */
+    min-width: 320px;    /* keeps it longer than others */
+    max-width: 380px; /* adjust: 320 / 360 / 420 */
+  }
+
+  .topbarSearch .topInput {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Right side stays packed */
+  .topbarRight {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+/* =========================
+   TOPBAR FINAL LAYOUT (stable)
+   Paste at VERY END of Board.css
+========================= */
+
+/* base: desktop-first = single row */
+.topbarPill{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+/* left (brand) */
+.topbarLeft{
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* search area should be noticeably longer */
+.topbarSearch{
+  flex: 1 1 420px;      /* grows */
+  min-width: 280px;     /* never tiny */
+  max-width: 520px;     /* prevent eating the whole bar */
+}
+
+/* ONLY the search input gets the longer width */
+.topbarSearch .topSearchInput{
+  width: 100%;
+  min-width: 0;
+}
+
+/* center controls (company/role/saved/add) */
+.topbarCenter{
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* right side (total + profile) */
+.topbarRight{
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* -------------------------
+   TABLET: wrap cleanly (no overlap)
+------------------------- */
+@media (max-width: 1100px){
+  .topbarPill{
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  /* put brand + right on first row */
+  .topbarLeft{ order: 1; }
+  .topbarRight{
+    order: 2;
+    margin-left: auto;     /* pushes it to the right */
+  }
+
+  /* search goes full row */
+  .topbarSearch{
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  /* controls go next row */
+  .topbarCenter{
+    order: 4;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+}
+
+/* -------------------------
+   PHONE: stacked layout
+------------------------- */
+@media (max-width: 700px){
+  .topbarPill{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbarLeft,
+  .topbarRight,
+  .topbarSearch,
+  .topbarCenter{
+    width: 100%;
+  }
+
+  .topbarRight{
+    justify-content: space-between;
+  }
+
+  .topbarCenter{
+    justify-content: flex-start;
+  }
+}
+
+/* ===== Phone fix: keep select arrow INSIDE the pill ===== */
+@media (max-width: 520px) {
+  .topSelectWrapper {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .topSelectWrapper .topSelect {
+    width: 100% !important;
+    padding-right: 38px !important; /* reserve space for arrow */
+  }
+
+  .topSelectWrapper .topSelectArrow {
+    position: absolute !important;
+    right: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    pointer-events: none !important;
+    line-height: 1 !important;
+  }
+}
+
+.cardStageSelect{
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  padding-right: 34px; /* room for arrow */
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+
+  /* simple down arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20'%3E%3Cpath fill='rgba(255,255,255,0.65)' d='M5.6 7.5 10 11.9l4.4-4.4 1.4 1.4-5.8 5.8L4.2 8.9z'/%3E%3C/svg%3E");
+}
+
+/* light theme arrow color */
+html[data-theme="light"] .cardStageSelect{
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20'%3E%3Cpath fill='rgba(15,23,42,0.55)' d='M5.6 7.5 10 11.9l4.4-4.4 1.4 1.4-5.8 5.8L4.2 8.9z'/%3E%3C/svg%3E");
+}
+
+/* Drawer overlay (board blur behind drawer) */
+.drawerOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+/* Drawer panel */
+.drawerPanel{
+  position: absolute; /* or fixed depending on your CSS */
+  right: 0;
+  top: 0;
+  height: 100%;
+  z-index: 2100;
+}
+
+/* AI modal overlay MUST be above drawer overlay */
+.aiPanelOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;          /* ✅ higher than drawerOverlay */
+  pointer-events: auto;   /* ✅ ensure it can receive clicks */
+  display: grid;
+  place-items: center;
+}
+
+/* AI modal itself */
+.aiPanel{
+  position: relative;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+/* ===== Premium AI Modal ===== */
+
+.aiPanel{
+  width: min(860px, calc(100vw - 28px));
+  max-height: min(78vh, 720px);
+  overflow: hidden;
+
+  border-radius: 18px;
+  border: 1px solid var(--border2);
+  background: var(--panel);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+}
+
+.aiPanelHeader{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 14px 14px 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(255,255,255,0.0));
+}
+
+.aiPanelHeader > div{
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.aiPanelBody{
+  padding: 14px 16px;
+  overflow: auto;
+  max-height: calc(78vh - 130px);
+}
+
+.aiPanelBody pre{
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+.aiPanelFooter{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(to top, rgba(255,255,255,0.04), rgba(255,255,255,0.0));
+}
+
+/* Close button (top right) */
+.aiPanelHeader button{
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 12px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-primary);
+
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.aiPanelHeader button:hover{
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+  transform: translateY(-1px);
+}
+
+.aiPanelHeader button:active{
+  transform: translateY(0px) scale(0.98);
+}
+
+/* Footer buttons */
+.aiPanelFooter button{
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-primary);
+
+  font-weight: 600;
+  letter-spacing: 0.1px;
+
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.aiPanelFooter button:hover{
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+  transform: translateY(-1px);
+}
+
+.aiPanelFooter button:active{
+  transform: translateY(0px) scale(0.99);
+}
+
+/* Primary action: Insert */
+.aiPanelFooter button:first-of-type{
+  background: var(--accent);
+  border-color: rgba(0,0,0,0.0);
+  color: white;
+}
+
+.aiPanelFooter button:first-of-type:hover{
+  filter: brightness(1.05);
+}
+
+/* Disabled */
+.aiPanelFooter button:disabled,
+.aiPanelHeader button:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Checkbox row looks tighter */
+.aiPanelControls{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.aiCheck{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.aiCheck input{
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+}

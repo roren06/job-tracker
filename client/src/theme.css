@@ -1,0 +1,106 @@
+/* theme.css (PREMIUM) */
+
+/* ---------- Shared (both themes) ---------- */
+:root {
+  /* motion + radii */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+
+  /* shadows */
+  --shadow-xs: 0 6px 18px rgba(0,0,0,0.10);
+  --shadow-sm: 0 10px 28px rgba(0,0,0,0.14);
+  --shadow-md: 0 18px 55px rgba(0,0,0,0.20);
+  --shadow-lg: 0 26px 90px rgba(0,0,0,0.28);
+
+  /* focus ring */
+  --ring: 0 0 0 3px rgba(59, 130, 246, 0.20);
+
+  /* background glow (used in app backgrounds) */
+  --bgGlow1: radial-gradient(900px 600px at 18% 20%, rgba(80, 130, 255, 0.20), transparent 60%);
+  --bgGlow2: radial-gradient(900px 600px at 82% 30%, rgba(140, 120, 255, 0.14), transparent 62%);
+  --bgGlow3: radial-gradient(900px 700px at 55% 90%, rgba(0, 0, 0, 0.20), transparent 55%);
+}
+
+/* ---------- LIGHT ---------- */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* page */
+  --bg: #f3f5f9;
+  --bg2: #eef2f7;
+
+  /* text */
+  --text: #0f172a;
+  --muted: rgba(15, 23, 42, 0.62);
+
+  /* surfaces */
+  --surface: rgba(255,255,255,0.82);      /* glass surface */
+  --surface2: rgba(255,255,255,0.68);     /* softer glass */
+  --panel: rgba(255,255,255,0.78);        /* columns / drawers */
+  --panel2: rgba(15, 23, 42, 0.035);      /* input-ish / subtle fill */
+
+  /* borders */
+  --border: rgba(15, 23, 42, 0.10);
+  --border2: rgba(15, 23, 42, 0.16);
+
+  /* accent */
+  --accent: #3b82f6;
+  --accent2: rgba(59,130,246,0.12);
+
+  /* shadows */
+  --shadowSoft: 0 14px 40px rgba(15,23,42,0.10);
+
+  /* menus */
+  --menuBg: #ffffff;
+  --menuBorder: rgba(15,23,42,0.12);
+  --menuShadow: 0 18px 60px rgba(15,23,42,0.14);
+  --menuItemBg: #f6f8fc;
+  --menuItemBorder: rgba(15,23,42,0.10);
+  --menuItemHoverBg: #eef2f7;
+}
+
+/* ---------- DARK ---------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* page */
+  --bg: #070b12;
+  --bg2: #0b1220;
+
+  /* text */
+  --text: rgba(235, 243, 255, 0.92);
+  --muted: rgba(235, 243, 255, 0.62);
+
+  /* surfaces */
+  --surface: rgba(255,255,255,0.06);      /* glass surface */
+  --surface2: rgba(255,255,255,0.045);
+  --panel: rgba(255,255,255,0.05);
+  --panel2: rgba(120,160,255,0.08);
+
+  /* borders */
+  --border: rgba(255,255,255,0.10);
+  --border2: rgba(255,255,255,0.16);
+
+  /* accent */
+  --accent: #3b82f6;
+  --accent2: rgba(59,130,246,0.16);
+
+  /* shadows */
+  --shadowSoft: 0 18px 60px rgba(0,0,0,0.55);
+
+  /* menus */
+  --menuBg: #14171b;
+  --menuBorder: rgba(255,255,255,0.08);
+  --menuShadow: 0 26px 90px rgba(0,0,0,0.75);
+  --menuItemBg: #1b1f24;
+  --menuItemBorder: rgba(255,255,255,0.07);
+  --menuItemHoverBg: #22272e;
+}
+
+[data-theme="light"]{
+  --bgRadial1: rgba(0,0,0,0);
+  --bgRadial2: rgba(0,0,0,0);
+  --bg: #f7f9fc; /* keep your clean white */
+}

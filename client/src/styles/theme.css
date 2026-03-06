@@ -1,0 +1,33 @@
+:root {
+  /* Accent (Muted Indigo) */
+  --accent: 99 102 241; /* rgb */
+  --accent-2: 129 140 248;
+
+  /* Light defaults */
+  --bg: 248 250 252;
+  --surface: 255 255 255;
+  --surface-2: 244 246 249;
+  --border: 226 232 240;
+
+  --text: 15 23 42;
+  --muted: 71 85 105;
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="dark"] {
+  --bg: 10 12 16;
+  --surface: 16 18 24;
+  --surface-2: 20 23 30;
+  --border: 38 42 54;
+
+  --text: 226 232 240;
+  --muted: 148 163 184;
+
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+}

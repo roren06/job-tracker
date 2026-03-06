@@ -1,0 +1,854 @@
+:root{
+  /* Motion knobs */
+  --auth-ease: cubic-bezier(.77,0,.18,1);
+  --auth-dur: 720ms;     /* slower, premium */
+  --auth-delay: 120ms;   /* prevents flicker */
+}
+
+/* ===== AUTH COLOR KNOBS (edit here anytime) ===== */
+:root{
+  /* Page background vibe */
+  --auth-bg-left: #272626;   /* gray */
+  --auth-bg-mid:  #000000;   /* gray-blue */
+  --auth-bg-right:#000000;   /* bluish purple */
+
+  /* Form panel (glass) */
+  --auth-form-tint: rgba(255, 255, 255, 0.377);
+  --auth-form-border: rgba(49, 94, 199, 0.12);
+  --auth-form-shadow: 0 30px 80px rgba(160, 154, 154, 0.22);
+
+  /* Overlay (Hello Friend / Welcome Back) */
+  --auth-overlay-a: rgba(158, 158, 158, 0.96);
+  --auth-overlay-b: rgba(12, 13, 17, 0.92);
+  --auth-overlay-accent1: rgba(40, 105, 134, 0.22);
+  --auth-overlay-accent2: rgba(0, 0, 0, 0.16);
+}
+
+.authPage{
+  min-height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(circle at 30% 22%, rgba(128, 143, 155, 0.75), transparent 55%),
+    radial-gradient(circle at 85% 35%, rgba(0, 0, 0, 0.18), transparent 58%),
+    radial-gradient(circle at 78% 84%, rgba(90,150,255,0.14), transparent 60%),
+    linear-gradient(90deg,
+      var(--auth-bg-left) 0%,
+      var(--auth-bg-mid) 45%,
+      var(--auth-bg-right) 100%
+    );
+}
+.authPage::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at center,
+      transparent 60%,
+      rgba(0,0,0,0.15) 100%
+    );
+}
+
+.authCard{
+  width: min(980px, 100%);
+  height: 520px;
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--panel);
+ /* premium glass container */
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: var(--auth-form-shadow);
+  backdrop-filter: blur(14px);
+}
+
+/* ===== Panes ===== */
+.authPane{
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 34px;
+  transition: transform 380ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+}
+
+/* ===== Pane swap illusion (cross-slide) ===== */
+.authPaneLeft,
+.authPaneRight{
+  z-index: 2;
+  will-change: transform, opacity, filter;
+}
+
+/* ===== OBVIOUS FORM SLIDE (correct side clipping) ===== */
+.authPaneInner{
+  will-change: transform, clip-path, filter;
+  transition:
+    transform var(--auth-dur) var(--auth-ease),
+    clip-path var(--auth-dur) var(--auth-ease),
+    filter 260ms ease;
+}
+
+/* LOGIN */
+.authPaneLeft .authPaneInner{
+  transform: translateX(0);
+  clip-path: inset(0 0 0 0);
+  filter: blur(0px);
+  pointer-events: auto;
+}
+
+/* Register form parked LEFT but hidden by clipping from the LEFT (so it "enters" left→right) */
+.authPaneRight .authPaneInner{
+  transform: translateX(-110px);
+  clip-path: inset(0 0 0 100%);  /* hidden from LEFT */
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+/* REGISTER */
+/* Sign in slides RIGHT and gets clipped from the RIGHT (so it disappears on the right edge) */
+.authCard.isRegister .authPaneLeft .authPaneInner{
+  transform: translateX(110px);
+  clip-path: inset(0 100% 0 0);  /* hidden from RIGHT ✅ */
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+/* Create account slides in and gets revealed from LEFT */
+.authCard.isRegister .authPaneRight .authPaneInner{
+  transform: translateX(0);
+  clip-path: inset(0 0 0 0);
+  filter: blur(0px);
+  pointer-events: auto;
+}
+
+.authPaneInner{ width: min(360px, 100%); }
+
+.authPaneLeft{ left: 0; }
+.authPaneRight{ right: 0; }
+
+/* ===== Header (centered) ===== */
+.authHeader{
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.authTitle{
+  margin: 0 0 6px;
+  font-size: 28px;
+  color: var(--text-primary);
+}
+
+.authSub{
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.authForm{
+  display: grid;
+  gap: 12px;
+}
+
+.authInput{
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border2);
+  background: var(--panel2);
+  color: var(--text-primary);
+  padding: 0 12px;
+  outline: none;
+}
+
+.authInput:focus{
+  border-color: rgba(59,130,246,0.45);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+}
+
+.authMetaRow{
+  margin-top: 6px;
+  display: flex;
+  justify-content: center;
+}
+
+.authLink{
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 12.5px;
+  opacity: 0.95;
+}
+.authLink:hover{ text-decoration: underline; }
+
+.authError{
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: -2px;
+}
+
+/* Buttons: slightly smaller than inputs */
+.authBtn{
+  height: 38px;               /* smaller than inputs */
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--panel2);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  width: min(270px, 100%);
+  margin: 6px auto 0;
+}
+
+
+
+.authBtn.primary{
+  background: rgba(80, 114, 158, 0.808);
+  border-color: rgba(80, 114, 158, 0.808);
+  color: white;
+}
+.authBtn.primary:hover{ filter: brightness(1.03); }
+
+.authBtn.ghost:hover{
+  background: rgba(255,255,255,0.06);
+}
+
+/* ===== Sliding overlay ===== */
+.authOverlay{
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  height: 100%;
+  left: 50%;
+  transition: transform var(--auth-dur) var(--auth-ease);
+  z-index: 5;
+
+  background:
+    radial-gradient(circle at 30% 25%, var(--auth-overlay-accent1), transparent 58%),
+    radial-gradient(circle at 70% 70%, var(--auth-overlay-accent2), transparent 62%),
+    linear-gradient(135deg, var(--auth-overlay-a), var(--auth-overlay-b));
+
+  border-left: 1px solid rgba(255,255,255,0.10);
+  box-shadow: -30px 0 60px rgba(0,0,0,0.25);
+  will-change: transform;
+}
+
+:root[data-theme="light"] .authOverlay{
+  background: linear-gradient(135deg, rgba(37,99,235,0.92), rgba(99,102,241,0.88));
+  border-left: 1px solid rgba(0,0,0,0.06);
+}
+
+.authCard.isRegister .authOverlay{
+  transform: translateX(-100%);
+}
+
+.authOverlayPanel{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 44px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  gap: 12px;
+  color: white;
+}
+
+/* Left overlay panel is visible in REGISTER mode */
+.authOverlayPanelLeft{
+  opacity: 0;
+  transform: translateX(14px);
+  transition: 280ms ease;
+}
+.authCard.isRegister .authOverlayPanelLeft{
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Right overlay panel is visible in LOGIN mode */
+.authOverlayPanelRight{
+  opacity: 1;
+  transform: translateX(0);
+  transition: 280ms ease;
+}
+.authCard.isRegister .authOverlayPanelRight{
+  opacity: 0;
+  transform: translateX(-14px);
+}
+
+.overlayTitle{
+  margin: 0;
+  font-size: 30px;
+}
+
+.overlaySub{
+  margin: 0 0 8px;
+  opacity: 0.9;
+  max-width: 360px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.authBtn.overlay{
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.35);
+  color: white;
+  width: 160px;
+}
+.authBtn.overlay:hover{
+  background: rgba(255,255,255,0.18);
+}
+
+/* Mobile */
+@media (max-width: 860px){
+  .authCard{
+    height: auto;
+    min-height: 680px;
+  }
+
+  /* Stack layout: show ONLY the active pane */
+  .authPane{
+    position: relative;
+    width: 100%;
+    height: auto;
+    transform: none !important;
+  }
+
+  .authPaneRight{ display: none; }
+  .authCard.isRegister .authPaneLeft{ display: none; }
+  .authCard.isRegister .authPaneRight{ display: grid; }
+
+  .authOverlay{
+    position: relative;
+    width: 100%;
+    left: 0;
+    height: 220px;
+    transform: none !important;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .authOverlayPanel{
+    padding: 26px;
+  }
+
+  .authMetaRow{
+    justify-content: center;
+  }
+}
+
+/* ===== FIX: make only the visible overlay panel clickable ===== */
+.authOverlayPanel{
+  transition:
+    opacity 300ms ease var(--auth-delay),
+    transform 520ms var(--auth-ease) var(--auth-delay);
+  will-change: opacity, transform;
+  pointer-events: none; /* default: not clickable */
+}
+
+/* LOGIN mode (default): RIGHT panel is visible/clickable */
+/* default: LOGIN view shows RIGHT panel */
+.authOverlayPanelLeft{
+  opacity: 0;
+  transform: translateX(18px);
+}
+.authOverlayPanelRight{
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* REGISTER mode: LEFT panel is visible/clickable, RIGHT becomes unclickable */
+.authCard.isRegister .authOverlayPanelLeft{
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.authCard.isRegister .authOverlayPanelRight{
+  opacity: 0;
+  transform: translateX(-18px);
+  pointer-events: none;
+}
+
+/* Left pane becomes light panel */
+.authPaneLeft{
+  color: #7e8aa3;
+}
+
+/* Left pane title/sub */
+.authPaneLeft .authTitle{
+  color: #0b1220;
+}
+.authPaneLeft .authSub{
+  color: rgba(11,18,32,0.65);
+}
+
+.authPaneLeft .authInput{
+  background: rgba(255,255,255,0.72);
+  border: 1px solid var(--auth-form-border);
+  color: #0b1220;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+}
+
+.authPaneLeft .authInput::placeholder{
+  color: rgba(11,18,32,0.45);
+}
+
+.authPaneLeft .authInput:focus{
+  border-color: rgba(59,130,246,0.45);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.18), 0 10px 26px rgba(0,0,0,0.07);
+}
+.authPaneLeft .authBtn.primary{
+  box-shadow: 0 16px 36px rgba(59,130,246,0.25);
+}
+
+.authPaneLeft .authBtn.ghost{
+  background: rgba(11,18,32,0.06);
+  border: 1px solid rgba(11,18,32,0.12);
+  color: #0b1220;
+}
+.authPaneLeft .authBtn.ghost:hover{
+  background: rgba(11,18,32,0.09);
+}
+
+/* ================================
+   PREMIUM FORM PANELS (BOTH SIDES)
+   ================================ */
+
+/* Make BOTH form panes frosted-light */
+.authPaneLeft,
+.authPaneRight{
+  background: var(--auth-form-tint);
+}
+
+/* Divider between form and overlay */
+.authPaneLeft{
+  border-right: 1px solid rgba(255,255,255,0.18);
+}
+.authPaneRight{
+  border-left: 1px solid rgba(15,23,42,0.10);
+}
+
+/* Headings/subtext for both forms */
+.authPaneLeft .authTitle,
+.authPaneRight .authTitle{
+  color: #0b1220;
+}
+
+.authPaneLeft .authSub,
+.authPaneRight .authSub{
+  color: rgba(11,18,32,0.65);
+}
+
+.authPaneLeft .authInput,
+.authPaneRight .authInput{
+  background: #ffffff;                     /* pure white */
+  border: 1px solid rgba(15,23,42,0.12);   /* subtle gray border */
+  color: #0b1220;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05); /* soft lift */
+}
+
+.authPaneLeft .authInput::placeholder,
+.authPaneRight .authInput::placeholder{
+  color: rgba(11,18,32,0.45);
+}
+
+.authPaneLeft .authInput:focus,
+.authPaneRight .authInput:focus{
+  border-color: rgba(59,130,246,0.45);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.18), 0 10px 26px rgba(0,0,0,0.07);
+}
+
+/* Error text readable on light panels */
+.authPaneLeft .authError,
+.authPaneRight .authError{
+  color: #dc2626;
+}
+
+/* Primary stays blue, but give it premium lift */
+.authPaneLeft .authBtn.primary,
+.authPaneRight .authBtn.primary{
+  box-shadow: 0 16px 36px rgba(59,130,246,0.25);
+}
+
+/* Ghost style for light panels (Try Demo etc.) */
+.authPaneLeft .authBtn.ghost,
+.authPaneRight .authBtn.ghost{
+  background: rgba(11,18,32,0.06);
+  border: 1px solid rgba(11,18,32,0.12);
+  color: #0b1220;
+}
+.authPaneLeft .authBtn.ghost:hover,
+.authPaneRight .authBtn.ghost:hover{
+  background: rgba(11,18,32,0.09);
+}
+
+/* Forgot password link on light panels */
+.authPaneLeft .authLink,
+.authPaneRight .authLink{
+  color: rgba(59,130,246,0.95);
+}
+
+/* Fix Chrome / Edge autofill gray background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+
+  -webkit-box-shadow: 0 0 0 1000px #f0e9e9 inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+
+  -webkit-text-fill-color: #0b1220 !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ========= Forgot Password Premium UI ========= */
+
+/* Background wrapper */
+.authPage--forgot {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* soft premium background (edit these to taste) */
+.authBg {
+  position: absolute;
+  inset: -40px;
+  background:
+    radial-gradient(1200px 700px at 25% 10%, rgba(120,160,255,0.18), transparent 60%),
+    radial-gradient(900px 600px at 80% 85%, rgba(80,120,255,0.12), transparent 55%),
+    linear-gradient(135deg, rgba(255,255,255,0.08), rgba(0,0,0,0.35));
+  filter: blur(18px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Card */
+.authCard--single {
+  width: min(520px, 92vw);
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 26px 90px rgba(0,0,0,0.60);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  padding: 26px;
+}
+
+/* Header */
+.authHeader {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.authTitle {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 850;
+  letter-spacing: 0.2px;
+}
+
+.authSub {
+  margin: 0;
+  font-size: 13.5px;
+  opacity: 0.75;
+  line-height: 1.45;
+}
+
+/* Form */
+.authForm--single {
+  padding-top: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.authFieldBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.authLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  opacity: 0.85;
+}
+
+/* Input (white like your login) */
+.authInput {
+  height: 44px;
+  border-radius: 14px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.92);
+  color: #0f172a;
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.08);
+}
+
+.authInput::placeholder {
+  color: rgba(15,23,42,0.45);
+}
+
+.authInput:focus {
+  border-color: rgba(59,130,246,0.55);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18),
+              inset 0 1px 2px rgba(15,23,42,0.08);
+}
+
+/* Notices (replace your inline done style) */
+.authNotice {
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+}
+
+.authNotice--success {
+  border-color: rgba(120,160,255,0.28);
+  background: rgba(120,160,255,0.10);
+}
+
+.authNotice--error {
+  border-color: rgba(255, 90, 90, 0.30);
+  background: rgba(255, 90, 90, 0.10);
+}
+
+/* Buttons row */
+.authActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.authBtn {
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.92);
+  cursor: pointer;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease;
+}
+
+.authBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  border-color: rgba(255,255,255,0.22);
+}
+
+.authBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.authBtn--primary {
+  background: rgba(80, 114, 158, 0.808);
+  border-color: rgba(80, 114, 158, 0.808);
+  color: #fff;
+}
+
+.authBtn--ghost {
+  background: rgba(255,255,255,0.06);
+}
+
+.authFootNote {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.6;
+  line-height: 1.4;
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .authActions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===========================
+   FORGOT PASSWORD — PREMIUM
+   Paste at VERY BOTTOM
+   =========================== */
+
+.authPageForgot .authCard{
+  /* make the card a true premium glass */
+  width: min(520px, 100%);
+  height: auto;
+  min-height: 360px;
+
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* make everything readable on the darker glass */
+.authPageForgot .authHeader{
+  text-align: center;
+}
+
+.authPageForgot .authTitle{
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 0.2px;
+}
+
+.authPageForgot .authSub{
+  color: rgba(255,255,255,0.68);
+}
+
+/* label */
+.authPageForgot .authLabel{
+  color: rgba(255,255,255,0.78);
+}
+
+/* input = premium white field */
+.authPageForgot .authField{
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(10,12,18,0.92);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.20);
+}
+
+.authPageForgot .authField::placeholder{
+  color: rgba(10,12,18,0.45);
+}
+
+.authPageForgot .authField:focus{
+  border-color: rgba(59,130,246,0.55);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.18), 0 12px 30px rgba(0,0,0,0.22);
+  outline: none;
+}
+
+/* buttons row: make it clean and aligned */
+.authPageForgot .authRow{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* primary button: keep your blue but give it depth */
+.authPageForgot .authBtnPrimary,
+.authPageForgot .authBtn.authBtnPrimary{
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(59,130,246,0.95);
+  border: 1px solid rgba(59,130,246,0.55);
+  color: white;
+  box-shadow: 0 18px 40px rgba(59,130,246,0.25);
+}
+
+.authPageForgot .authBtnPrimary:hover,
+.authPageForgot .authBtn.authBtnPrimary:hover{
+  filter: brightness(1.05);
+}
+
+/* make "Back to login" look like a ghost button (premium) */
+.authPageForgot .authLink{
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.88);
+}
+
+.authPageForgot .authLink:hover{
+  background: rgba(255,255,255,0.14);
+}
+
+/* error + success readability */
+.authPageForgot .authError{
+  color: #ff5a5a;
+}
+
+.authPageForgot .authDone{
+  border: 1px solid rgba(120,160,255,0.28);
+  background: rgba(120,160,255,0.10);
+  color: rgba(255,255,255,0.90);
+}
+
+/* small helper note */
+.authPageForgot .authHint{
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+}
+
+/* Improve readability of security note */
+.authFootNote{
+  margin-top: 14px;
+  font-size: 12.5px;
+  text-align: center;
+
+  color: rgba(255,255,255,0.70); /* brighter but still subtle */
+  letter-spacing: 0.2px;
+}
+
+.authPasswordWrap {
+  position: relative;
+  width: 100%;
+}
+
+.authInputWithToggle {
+  padding-right: 42px;
+  width: 100%;
+}
+
+.authPasswordToggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authPasswordToggle:hover {
+  color: #374151;
+}
