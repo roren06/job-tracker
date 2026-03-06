@@ -211,16 +211,14 @@ try {
   text = (response as any).output_text?.trim?.() ?? "";
 
 } catch (err: any) {
+  console.warn("OpenAI unavailable, using demo fallback.", {
+    name: err?.name,
+    message: err?.message,
+    status: err?.status || err?.statusCode,
+  });
 
-  console.warn("OpenAI unavailable, using dev fallback.");
-
-  // DEV FALLBACK (FREE, no billing required)
-  if (process.env.NODE_ENV !== "production") {
-    text = mockAiResponse(action, company, role, notes, userPrompt);
-    mode = "demo";
-  } else {
-    throw err;
-  }
+  text = mockAiResponse(action, company, role, notes, userPrompt);
+  mode = "demo";
 }
 
     if (!text) {
