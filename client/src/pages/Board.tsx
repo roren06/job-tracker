@@ -23,7 +23,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { generateAI, type AiAction } from "../lib/api"; // adjust path if api.ts is elsewhere
 import { useMutation } from "@tanstack/react-query";
-import { getAiHistory, type AiHistoryItem } from "../lib/api";
+import type { AiHistoryItem } from "../lib/api";
 import { useNavigate } from "react-router-dom";
 import { useMe } from "../hooks/useMe";
 
@@ -94,7 +94,6 @@ function Card({
   app,
   onChangeStage,
   onOpen,
-  isUpdating,
   onDelete,
 }: {
   app: Application;
@@ -213,75 +212,7 @@ function OverlayCard({
   );
 }
 
-type StageKey = Stage;
 
-function StageDropdown({
-  value,
-  onChange,
-  className,
-}: {
-  value: StageKey;
-  onChange: (v: StageKey) => void;
-  className?: string;
-}) {
-  const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement | null>(null);
-
-  const current = STAGES.find((s) => s.key === value)?.label ?? value;
-
-  React.useEffect(() => {
-    function onDocDown(e: MouseEvent) {
-      if (!ref.current) return;
-      if (!ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", onDocDown);
-    document.addEventListener("keydown", onEsc);
-    return () => {
-      document.removeEventListener("mousedown", onDocDown);
-      document.removeEventListener("keydown", onEsc);
-    };
-  }, []);
-
-  return (
-    <div ref={ref} className={`stageSelect ${className ?? ""}`}>
-      <button
-        type="button"
-        className="stageBtn"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className="stageBtnLabel">{current}</span>
-        <span className="stageChevron" aria-hidden="true">
-          ▾
-        </span>
-      </button>
-
-      {open && (
-        <div className="stageMenu" role="listbox">
-          {STAGES.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              role="option"
-              aria-selected={s.key === value}
-              className={`stageItem ${s.key === value ? "isActive" : ""}`}
-              onClick={() => {
-                onChange(s.key as StageKey);
-                setOpen(false);
-              }}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function BoardSkeleton() {
   return (
@@ -501,9 +432,6 @@ const stagesToRender: { key: Stage; label: string }[] = isMobile
   }
 }
 
-  type InsertMode = "append" | "replace";
-
-  const [aiInsertMode, setAiInsertMode] = useState<InsertMode>("append");
   const [aiAutoSaveAfterInsert, setAiAutoSaveAfterInsert] = useState(true);
 
   function isPointerOnHorizontalScrollbar(
@@ -591,7 +519,6 @@ function pushToast(
   const {
   data,
   isLoading,
-  isError,
   refetch,
 } = useQuery({
   queryKey: ["applications"],
@@ -946,17 +873,6 @@ async function deleteApplication(id: string) {
 
     // 2️⃣ Delete (soft delete API)
     await api.delete(`/applications/${id}`);
-
-    // 3️⃣ Define undo function
-    const undoFn = async () => {
-      try {
-        await api.post(`/applications/${id}/restore`);
-        pushToast("Restored", "success");
-        refetch();
-      } catch {
-        pushToast("Failed to restore", "error");
-      }
-    };
 
     // 4️⃣ Show toast WITH undo
     pushToast({
