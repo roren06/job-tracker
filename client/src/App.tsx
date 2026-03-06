@@ -42,8 +42,8 @@ export default function App() {
       </Route>
 
       {/* Default */}
-      <Route path="/" element={<Navigate to="/board" replace />} />
-      <Route path="*" element={<Navigate to="/board" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
