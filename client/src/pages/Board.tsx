@@ -1033,23 +1033,20 @@ async function deleteApplication(id: string) {
   }));
 
   try {
-    // 1) update stage FIRST (silent)
-    await updateStage(draggedId, toStage, { silent: true });
+  await updateStage(draggedId, toStage, { silent: true });
 
-    // 2) persist order for both columns
-    await Promise.all([
-      persistStageOrder(fromStage, fromNext),
-      persistStageOrder(toStage, toNext),
-    ]);
+  await Promise.all([
+    persistStageOrder(fromStage, fromNext),
+    persistStageOrder(toStage, toNext),
+  ]);
 
-    // 3) only ONE toast
-    pushToast(`Moved to ${toStage}`, "success");
+  pushToast(`Moved to ${toStage}`, "success");
 
-    refetch();
-  } catch {
-    pushToast("Failed to move card", "error");
-    refetch();
-  }
+  // no immediate refetch here
+} catch {
+  pushToast("Failed to move card", "error");
+  refetch();
+}
 }
 
   function openDrawer(app: Application) {
