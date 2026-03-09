@@ -130,6 +130,7 @@ function Card({
       {...attributes}
       {...listeners}
       onDoubleClick={() => onOpen(app)}
+      data-dragging={isDragging ? "true" : "false"}
     >
 
       <button
@@ -764,6 +765,8 @@ const aiMutation = useMutation({
     return a.company.toLowerCase().includes(q) || a.role.toLowerCase().includes(q);
   });
 
+  const hasVisibleApps = filteredApps.length > 0;
+
   const visibleIdSet = useMemo(() => new Set(filteredApps.map((a) => a.id)), [filteredApps]);
 
   const appById = useMemo(() => {
@@ -1270,6 +1273,15 @@ async function deleteApplication(id: string) {
                 onDragEnd={onDragEnd}
               >
                 <div className="boardGrid">
+
+                  {!hasVisibleApps && (
+                <div className="boardGlobalEmpty">
+                  <div className="boardGlobalEmptyTitle">No matching applications</div>
+                  <div className="boardGlobalEmptySub">
+                    Try a different search or add a new application.
+                  </div>
+                </div>
+              )}
                   <div className="boardColumnsGrid">
                     {stagesToRender.map((s: { key: Stage; label: string }) => {
   const orderedIds = orderByStage[s.key];
@@ -1286,8 +1298,10 @@ async function deleteApplication(id: string) {
   {visibleIds.length === 0 ? (
     <div className="emptyState">
       <div className="emptyIcon" aria-hidden="true">＋</div>
-      <div className="emptyTitle">No items</div>
-      <div className="emptySub">Drop a card here or add a new one.</div>
+      <div className="emptyTitle">Nothing here yet</div>
+      <div className="emptySub">
+        Drag an application into this stage or create a new one above.
+      </div>
     </div>
   ) : (
     visibleIds.map((id) => {

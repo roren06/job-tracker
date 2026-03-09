@@ -21,3 +21,53 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+.appBoot {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,0.04), transparent 60%),
+    linear-gradient(180deg, #0b0f14, #111827);
+  padding: 24px;
+}
+
+.appBootCard {
+  width: min(420px, 92vw);
+  padding: 28px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.30);
+  text-align: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.appBootSpinner {
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  border: 3px solid rgba(255,255,255,0.14);
+  border-top-color: rgba(255,255,255,0.85);
+  animation: appBootSpin 0.9s linear infinite;
+}
+
+.appBootTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.95);
+}
+
+.appBootSub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.62);
+}
+
+@keyframes appBootSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

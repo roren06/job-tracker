@@ -327,7 +327,12 @@ html[data-theme="dark"] .boardColumnHeader {
 .boardCard:hover{
   border-color: rgba(120,160,255,0.22);
   box-shadow: 0 16px 40px rgba(0,0,0,0.28);
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+}
+
+.boardCard[data-dragging="true"] {
+  transform: none;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.20);
 }
 
 /* =========================
@@ -2978,4 +2983,25 @@ html[data-theme="light"] .cardStageSelect{
   width: 14px;
   height: 14px;
   accent-color: var(--accent);
+}
+
+.boardGlobalEmpty {
+  margin: 12px 0 8px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadowSoft);
+}
+
+.boardGlobalEmptyTitle {
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.boardGlobalEmptySub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
 }

@@ -6,10 +6,22 @@ import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
+function AppLoader() {
+  return (
+    <div className="appBoot">
+      <div className="appBootCard">
+        <div className="appBootSpinner" />
+        <div className="appBootTitle">Loading session...</div>
+        <div className="appBootSub">Preparing your workspace</div>
+      </div>
+    </div>
+  );
+}
+
 function RequireAuth() {
   const { data, isLoading, isError } = useMe();
 
-  if (isLoading) return <div style={{ padding: 24 }}>Loading session...</div>;
+  if (isLoading) return <AppLoader />;
   if (isError || !data?.user) return <Navigate to="/login" replace />;
 
   return <Outlet />;
@@ -17,8 +29,10 @@ function RequireAuth() {
 
 function PublicOnly() {
   const { data, isLoading } = useMe();
-  if (isLoading) return <div style={{ padding: 24 }}>Loading session...</div>;
+
+  if (isLoading) return <AppLoader />;
   if (data?.user) return <Navigate to="/board" replace />;
+
   return <Outlet />;
 }
 
