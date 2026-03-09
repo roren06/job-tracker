@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import {
   DndContext,
@@ -403,8 +403,8 @@ export default function Board() {
   const navigate = useNavigate();
   const [aiOpen, setAiOpen] = useState(false);
   const [mobileStage, setMobileStage] = useState<Stage>("SAVED");
-
-const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
+  const queryClient = useQueryClient();
 
 useEffect(() => {
   const onResize = () => setIsMobile(window.innerWidth <= 520);
@@ -899,7 +899,7 @@ async function deleteApplication(id: string) {
   async function updateStage(
   id: string,
   stage: Stage,
-  opts?: { silent?: boolean } // silent = no toast
+  opts?: { silent?: boolean }
 ) {
   setOptimisticStageById((prev) => ({ ...prev, [id]: stage }));
   setUpdatingIds((prev) => new Set(prev).add(id));
@@ -907,21 +907,33 @@ async function deleteApplication(id: string) {
   try {
     await api.patch(`/applications/${id}`, { stage });
 
-    // ✅ only toast when NOT silent (dropdown change, etc.)
+    // ✅ Update React Query cache immediately so old server data
+    // doesn't snap the card back to its previous column
+    queryClient.setQueryData(
+      ["applications"],
+      (old: { applications: Application[] } | undefined) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          applications: old.applications.map((app) =>
+            app.id === id ? { ...app, stage } : app
+          ),
+        };
+      }
+    );
+
     if (!opts?.silent) {
       pushToast(`Moved to ${stage}`, "success");
+      refetch();
     }
 
+    // ✅ Now safe to clear optimistic stage
     setOptimisticStageById((prev) => {
       const copy = { ...prev };
       delete copy[id];
       return copy;
     });
-
-    // ✅ avoid refetch spam on drag moves (silent)
-    if (!opts?.silent) {
-      refetch();
-    }
   } catch (e) {
     if (!opts?.silent) pushToast("Failed to update stage", "error");
 
