@@ -907,8 +907,6 @@ async function deleteApplication(id: string) {
   try {
     await api.patch(`/applications/${id}`, { stage });
 
-    // ✅ Update React Query cache immediately so old server data
-    // doesn't snap the card back to its previous column
     queryClient.setQueryData(
       ["applications"],
       (old: { applications: Application[] } | undefined) => {
@@ -928,15 +926,11 @@ async function deleteApplication(id: string) {
       refetch();
     }
 
-    // ✅ Now safe to clear optimistic stage
-    setOptimisticStageById((prev) => {
-      const copy = { ...prev };
-      delete copy[id];
-      return copy;
-    });
+    // ❌ do NOT clear optimistic stage here yet
   } catch (e) {
     if (!opts?.silent) pushToast("Failed to update stage", "error");
 
+    // ✅ only clear optimistic state on failure
     setOptimisticStageById((prev) => {
       const copy = { ...prev };
       delete copy[id];
