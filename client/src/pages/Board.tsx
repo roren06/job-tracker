@@ -74,10 +74,13 @@ function Column({
   count: number;
   children: ReactNode;
 }) {
-  const { setNodeRef } = useDroppable({ id: columnDroppableId(stage) });
+  const { setNodeRef, isOver } = useDroppable({ id: columnDroppableId(stage) });
 
   return (
-  <div ref={setNodeRef} className="boardColumn">
+  <div
+  ref={setNodeRef}
+  className={`boardColumn ${isOver ? "boardColumnActive" : ""}`}
+>
     <div className="boardColumnHeader">
       <h3 className="boardColumnTitle">{title}</h3>
       <div className="boardPill">{count}</div>

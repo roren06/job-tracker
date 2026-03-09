@@ -3005,3 +3005,18 @@ html[data-theme="light"] .cardStageSelect{
   font-size: 13px;
   color: var(--muted);
 }
+
+.boardColumnActive {
+  border-color: rgba(120,160,255,0.35);
+  background: rgba(120,160,255,0.05);
+  box-shadow:
+    inset 0 0 0 1px rgba(120,160,255,0.18),
+    0 10px 30px rgba(0,0,0,0.25);
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+.boardColumnActive .boardColumnHeader {
+  color: rgba(120,160,255,0.9);
+}
