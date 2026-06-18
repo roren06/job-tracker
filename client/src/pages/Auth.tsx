@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
+import { startDemoLogin } from "../lib/demoLogin";
 import "./Auth.css";
 
 type Mode = "login" | "register";
@@ -41,8 +42,7 @@ export default function Auth({ initial = "login" }: { initial?: Mode }) {
     setErr(null);
     setLoading(true);
     try {
-      await api.post("/auth/demo");
-      await finishAuth();
+      await startDemoLogin(qc, nav);
     } catch (e: any) {
       setErr(e?.response?.data?.message || "Demo login failed");
     } finally {

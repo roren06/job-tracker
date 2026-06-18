@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../prisma";
 import crypto from "crypto";
 import { sendPasswordResetEmail } from "../lib/mailer";
+import { DEMO_EMAIL, seedDemoApplications } from "../lib/seedDemo";
+import { authCookieOptions } from "../lib/cookieOptions";
 
 const router = Router();
 
@@ -26,15 +28,7 @@ function signToken(payload: { userId: string }) {
 }
 
 function cookieOptions() {
-  const isProd = process.env.NODE_ENV === "production";
-
-  return {
-    httpOnly: true,
-    sameSite: isProd ? ("none" as const) : ("lax" as const),
-    secure: isProd,
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  };
+  return authCookieOptions();
 }
 
 function hashResetToken(token: string) {
@@ -85,23 +79,16 @@ router.post("/login", async (req, res) => {
 
 // DEMO (one-click try)
 router.post("/demo", async (_req, res) => {
-  const demoEmail = "demo@jobtracker.app";
-
-  let user = await prisma.user.findUnique({ where: { email: demoEmail } });
+  let user = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
 
   if (!user) {
     const passwordHash = await bcrypt.hash("DemoPassword123!", 12);
     user = await prisma.user.create({
-      data: { email: demoEmail, password: passwordHash, name: "Demo User" },
-    });
-
-    await prisma.application.createMany({
-      data: [
-        { userId: user.id, company: "Acme Corp", role: "Frontend Developer", stage: "APPLIED" },
-        { userId: user.id, company: "Nimbus", role: "Full Stack Dev", stage: "INTERVIEW" },
-      ],
+      data: { email: DEMO_EMAIL, password: passwordHash, name: "Demo User" },
     });
   }
+
+  await seedDemoApplications(user.id);
 
   const token = signToken({ userId: user.id });
   res.cookie("token", token, cookieOptions());
@@ -110,15 +97,7 @@ router.post("/demo", async (_req, res) => {
 });
 
 router.post("/logout", async (_req, res) => {
-  const isProd = process.env.NODE_ENV === "production";
-
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: isProd ? "none" : "lax",
-    secure: isProd,
-    path: "/",
-  });
-
+  res.clearCookie("token", authCookieOptions());
   res.json({ ok: true });
 });
 

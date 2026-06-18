@@ -1,0 +1,419 @@
+/* Shared app header (Board + Analytics) */
+
+.topbarSticky {
+  padding: 16px 24px 12px;
+  margin-bottom: 12px;
+  z-index: 100;
+  overflow: visible;
+  position: sticky;
+  top: 0;
+}
+
+.topbarPill {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 20px;
+  position: relative;
+  overflow: visible;
+}
+
+.topbarPill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, transparent 38%);
+}
+
+:root[data-theme="dark"] .topbarPill {
+  background: rgba(12, 14, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme="light"] .topbarPill {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.topbarHead {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  position: relative;
+  z-index: 6;
+}
+
+.topbarHeadSpacer {
+  min-width: 0;
+}
+
+.topbarBrandCluster {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.brandBlock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brandIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.brandCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.brandTitle {
+  font-size: 30px;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.brandSub {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+.totalBadge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(120, 160, 255, 0.22);
+  background: rgba(120, 160, 255, 0.08);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+html[data-theme="light"] .totalBadge {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.18);
+}
+
+.totalBadgeLabel {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.totalBadgeCount {
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.topbarSearchShell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 12px 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  min-width: 0;
+  justify-self: center;
+  width: min(100%, 400px);
+}
+
+html[data-theme="light"] .topbarSearchShell {
+  border-color: rgba(15, 23, 42, 0.1);
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.topbarSearchShell:focus-within {
+  border-color: rgba(120, 160, 255, 0.32);
+  background: rgba(120, 160, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.topbarSearchIcon {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.topbarSearchInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.topbarSearchHint {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.topbarSearchClear {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.topbarActions {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.topbarToolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme="light"] .topbarToolbar {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.topbarToolbarLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-right: 4px;
+  flex-shrink: 0;
+}
+
+/* Profile menu */
+.profileMenu {
+  position: relative;
+  z-index: 10;
+  display: inline-flex;
+}
+
+.profileMenu.isOpen {
+  z-index: 10060;
+}
+
+.profileBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  height: 40px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.profileAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 22px;
+}
+
+:root[data-theme="light"] .profileAvatar {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="dark"] .profileAvatar {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.profileAvatarIcon {
+  display: block;
+  line-height: 1;
+  font-size: 14px;
+  transform: translateY(-0.5px);
+}
+
+.profileLabel {
+  line-height: 1;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profileChevron {
+  opacity: 0.85;
+  font-size: 12px;
+}
+
+:root[data-theme="dark"] .logoutBtn,
+:root[data-theme="dark"] .profileBtn {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+:root[data-theme="light"] .logoutBtn,
+:root[data-theme="light"] .profileBtn {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--text);
+}
+
+.profileDropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 10061;
+  min-width: 220px;
+  padding: 8px;
+  border-radius: 14px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  isolation: isolate;
+}
+
+:root[data-theme="dark"] .profileDropdown {
+  background: #161a20;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="light"] .profileDropdown {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+}
+
+.profileItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .profileItem {
+  background: #1b1f24;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="light"] .profileItem {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.profileItem:hover {
+  filter: brightness(1.06);
+}
+
+.profileItem.danger {
+  color: #ff5a5a;
+}
+
+.profileDivider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--border);
+}
+
+@media (max-width: 900px) {
+  .topbarHead {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "brand profile" "search search";
+    gap: 12px;
+  }
+
+  .topbarBrandCluster {
+    grid-area: brand;
+  }
+
+  .topbarSearchShell,
+  .topbarHeadSpacer {
+    grid-area: search;
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .profileMenu {
+    grid-area: profile;
+    justify-self: end;
+  }
+
+  .brandTitle {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbarSticky {
+    padding: 12px 14px 8px;
+  }
+
+  .topbarPill {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .topbarBrandCluster {
+    flex-wrap: wrap;
+  }
+
+  .brandTitle {
+    font-size: 24px;
+  }
+}

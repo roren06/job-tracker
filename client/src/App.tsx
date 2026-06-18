@@ -5,6 +5,8 @@ import Analytics from "./pages/Analytics";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Landing from "./pages/Landing";
+import DemoRedirect from "./pages/DemoRedirect";
 
 function AppLoader() {
   return (
@@ -22,7 +24,7 @@ function RequireAuth() {
   const { data, isLoading, isError } = useMe();
 
   if (isLoading) return <AppLoader />;
-  if (isError || !data?.user) return <Navigate to="/login" replace />;
+  if (isError || !data?.user) return <Navigate to="/" replace />;
 
   return <Outlet />;
 }
@@ -39,7 +41,11 @@ function PublicOnly() {
 export default function App() {
   return (
     <Routes>
-      {/* Public-only */}
+      {/* Public */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/demo" element={<DemoRedirect />} />
+
+      {/* Public-only auth */}
       <Route element={<PublicOnly />}>
         <Route path="/login" element={<Auth initial="login" />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -56,8 +62,7 @@ export default function App() {
       </Route>
 
       {/* Default */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

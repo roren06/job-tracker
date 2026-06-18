@@ -25,7 +25,7 @@ import { generateAI, type AiAction } from "../lib/api"; // adjust path if api.ts
 import { useMutation } from "@tanstack/react-query";
 import type { AiHistoryItem } from "../lib/api";
 import { useNavigate } from "react-router-dom";
-import { useMe } from "../hooks/useMe";
+import { AppHeader } from "../components/AppHeader";
 
 type Stage = "SAVED" | "APPLIED" | "INTERVIEW" | "FINAL" | "OFFER" | "REJECTED";
 
@@ -80,6 +80,7 @@ function Column({
   <div
   ref={setNodeRef}
   className={`boardColumn ${isOver ? "boardColumnActive" : ""}`}
+  data-stage={stage}
 >
     <div className="boardColumnHeader">
       <h3 className="boardColumnTitle">{title}</h3>
@@ -280,104 +281,7 @@ function BoardSkeleton() {
   );
 }
 
-function ProfileMenu({
-  theme,
-  onToggleTheme,
-  onGoAnalytics,
-  onLogout,
-}: {
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
-  onGoAnalytics: () => void;
-  onLogout: () => void;
-}) {
-  const { data } = useMe();
-  const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement | null>(null);
 
-  const label =
-    (data?.user?.name && String(data.user.name).trim()) ||
-    (data?.user?.email && String(data.user.email).trim()) ||
-    "Account";
-
-  React.useEffect(() => {
-    function onDown(e: MouseEvent) {
-      if (!ref.current) return;
-      if (!ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onEsc);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onEsc);
-    };
-  }, []);
-
-  return (
-    <div className="profileMenu" ref={ref}>
-      <button
-        type="button"
-        className="logoutBtn profileBtn"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        <span className="profileAvatar" aria-hidden="true">
-  <span className="profileAvatarIcon">👤</span>
-</span>
-        <span className="profileLabel">{label}</span>
-        <span className="profileChevron" aria-hidden="true">
-          ▾
-        </span>
-      </button>
-
-      {open && (
-        <div className="profileDropdown" role="menu">
-          <button
-            type="button"
-            className="profileItem"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onGoAnalytics();
-            }}
-          >
-            Analytics
-          </button>
-
-          <button
-            type="button"
-            className="profileItem"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onToggleTheme();
-            }}
-          >
-            {theme === "dark" ? "Light mode" : "Dark mode"}
-          </button>
-
-          <div className="profileDivider" />
-
-          <button
-            type="button"
-            className="profileItem danger"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onLogout();
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function Board() {
   const [query, setQuery] = useState("");
@@ -409,12 +313,25 @@ export default function Board() {
   const [mobileStage, setMobileStage] = useState<Stage>("SAVED");
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
   const queryClient = useQueryClient();
+  const searchRef = useRef<HTMLInputElement>(null);
 
 useEffect(() => {
   const onResize = () => setIsMobile(window.innerWidth <= 520);
   window.addEventListener("resize", onResize);
   return () => window.removeEventListener("resize", onResize);
 }, []);
+
+useEffect(() => {
+  function onKey(e: KeyboardEvent) {
+    if (e.key !== "/" || isCreating) return;
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    e.preventDefault();
+    searchRef.current?.focus();
+  }
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [isCreating]);
 
 const stagesToRender: { key: Stage; label: string }[] = isMobile
   ? STAGES.filter((s) => s.key === mobileStage)
@@ -784,10 +701,19 @@ const aiMutation = useMutation({
   };
 }, []);
 
-  // ✅ Initialize/reconcile stable order when data changes
-  useEffect(() => {
   // Initialize / reconcile orderByStage from latest data + optimistic stages
-  if (!apps.length) return;
+  useEffect(() => {
+  if (!apps.length) {
+    setOrderByStage({
+      SAVED: [],
+      APPLIED: [],
+      INTERVIEW: [],
+      FINAL: [],
+      OFFER: [],
+      REJECTED: [],
+    });
+    return;
+  }
 
   const staged = apps.map((a) => ({
     ...a,
@@ -845,17 +771,57 @@ const aiMutation = useMutation({
 
   async function createApplication() {
   if (isCreating) return;
-  if (!form.company.trim() || !form.role.trim()) return;
+
+  const company = form.company.trim();
+  const role = form.role.trim();
+  const stage = form.stage;
+
+  if (!company || !role) {
+    pushToast({ message: "Company and role are required", type: "error" });
+    return;
+  }
 
   setIsCreating(true);
   try {
-    await api.post("/applications", form);
+    const res = await api.post("/applications", { company, role, stage });
+    const created = res.data?.application as Application | undefined;
+
+    if (!created?.id) {
+      pushToast({ message: "Server did not return the new application", type: "error" });
+      return;
+    }
+
+    queryClient.setQueryData(
+      ["applications"],
+      (old: { applications: Application[] } | undefined) => ({
+        applications: [...(old?.applications ?? []), created],
+      })
+    );
+
+    setOrderByStage((prev) => {
+      const stageIds = prev[created.stage] ?? [];
+      if (stageIds.includes(created.id)) return prev;
+      return {
+        ...prev,
+        [created.stage]: [...stageIds, created.id],
+      };
+    });
+
+    if (isMobile) setMobileStage(created.stage);
+
     pushToast({ message: "Application added", type: "success" });
     setForm({ company: "", role: "", stage: "SAVED" });
-    refetch();
-  } catch (e) {
-    pushToast({ message: "Failed to add application", type: "error" });
-    throw e;
+  } catch (err: unknown) {
+    const axiosErr = err as {
+      response?: { data?: { message?: string; error?: string } };
+      message?: string;
+    };
+    const msg =
+      axiosErr?.response?.data?.message ||
+      axiosErr?.response?.data?.error ||
+      axiosErr?.message ||
+      "Failed to add application";
+    pushToast({ message: msg, type: "error" });
   } finally {
     setIsCreating(false);
   }
@@ -955,7 +921,7 @@ async function deleteApplication(id: string) {
 
   async function logout() {
     await api.post("/auth/logout");
-    window.location.href = "/login";
+    window.location.href = "/";
   }
 
   function findStageOfCard(cardId: string): Stage | null {
@@ -1170,82 +1136,98 @@ async function deleteApplication(id: string) {
         >
           <div className="boardContainer">
             <div className="boardInner">
-              {/* Top Bar */}
-<div className="topbarSticky">
-  <div className="topbarPill">
-    {/* LEFT: Brand */}
-    <div className="topbarLeft">
-      <div className="brandTitle">Job Tracker</div>
-    </div>
-
-    {/* RIGHT: Form Controls + Meta */}
-    <div className="topbarRight">
-      <div className="topbarControls">
-
-        <input
-          className="topInput topSearchInput"
-          placeholder="Search.."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          disabled={isCreating}
-        />
-
-        <input
-          className="topInput"
-          placeholder="Company"
-          value={form.company}
-          onChange={(e) => setForm({ ...form, company: e.target.value })}
-          disabled={isCreating}
-        />
-
-        <input
-          className="topInput"
-          placeholder="Role"
-          value={form.role}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
-          disabled={isCreating}
-        />
-
-        <div className="topSelectWrapper">
-          <select
-            className="topSelect"
-            value={form.stage}
-            onChange={(e) => setForm({ ...form, stage: e.target.value as Stage })}
-            disabled={isCreating}
-          >
-            {STAGES.map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-          <span className="topSelectArrow">▾</span>
-        </div>
-
-        <button
-          className="primaryBtn"
-          onClick={createApplication}
-          disabled={isCreating}
-        >
-          {isCreating ? "Adding..." : "Add"}
-        </button>
-      </div>
-
-      <div className="totalText">
-        Total: <b>{filteredApps.length}</b>
-      </div>
-
-      <div className="topbarActions">
-  <ProfileMenu
-    theme={theme}
-    onToggleTheme={toggle}
-    onGoAnalytics={() => navigate("/analytics")}
-    onLogout={logout}
-  />
-</div>
-    </div>
-  </div>
-</div>
+              <AppHeader
+                page="board"
+                subtitle="Kanban board"
+                totalCount={filteredApps.length}
+                theme={theme}
+                onToggleTheme={toggle}
+                onGoBoard={() => navigate("/board")}
+                onGoAnalytics={() => navigate("/analytics")}
+                onLogout={logout}
+                search={
+                  <div className="topbarSearchShell">
+                    <span className="topbarSearchIcon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path
+                          fill="currentColor"
+                          d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"
+                        />
+                      </svg>
+                    </span>
+                    <input
+                      ref={searchRef}
+                      className="topbarSearchInput"
+                      placeholder="Search board..."
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      disabled={isCreating}
+                    />
+                    {query ? (
+                      <button
+                        type="button"
+                        className="topbarSearchClear"
+                        aria-label="Clear search"
+                        onClick={() => setQuery("")}
+                      >
+                        ✕
+                      </button>
+                    ) : (
+                      <span className="topbarSearchHint" aria-hidden="true">
+                        /
+                      </span>
+                    )}
+                  </div>
+                }
+                actions={
+                  <div className="topbarAddGroup">
+                    <span className="topbarAddLabel">Quick add</span>
+                    <input
+                      className="topInput"
+                      placeholder="Company"
+                      value={form.company}
+                      onChange={(e) => setForm({ ...form, company: e.target.value })}
+                      onKeyDown={(e) => e.key === "Enter" && createApplication()}
+                      disabled={isCreating}
+                    />
+                    <input
+                      className="topInput"
+                      placeholder="Role"
+                      value={form.role}
+                      onChange={(e) => setForm({ ...form, role: e.target.value })}
+                      onKeyDown={(e) => e.key === "Enter" && createApplication()}
+                      disabled={isCreating}
+                    />
+                    <div className="topSelectWrapper">
+                      <select
+                        className="topSelect"
+                        value={form.stage}
+                        onChange={(e) =>
+                          setForm({ ...form, stage: e.target.value as Stage })
+                        }
+                        disabled={isCreating}
+                      >
+                        {STAGES.map((s) => (
+                          <option key={s.key} value={s.key}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="topSelectArrow">▾</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="primaryBtn addApplicationBtn"
+                      onClick={createApplication}
+                      disabled={
+                        isCreating || !form.company.trim() || !form.role.trim()
+                      }
+                    >
+                      {isCreating ? "Adding..." : "+ Add"}
+                    </button>
+                  </div>
+                }
+              />
 
 {isMobile && (
   <div style={{ margin: "12px 0" }}>

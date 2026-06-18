@@ -175,15 +175,13 @@ router.post("/generate", async (req, res) => {
             text = response.output_text?.trim?.() ?? "";
         }
         catch (err) {
-            console.warn("OpenAI unavailable, using dev fallback.");
-            // DEV FALLBACK (FREE, no billing required)
-            if (process.env.NODE_ENV !== "production") {
-                text = mockAiResponse(action, company, role, notes, userPrompt);
-                mode = "demo";
-            }
-            else {
-                throw err;
-            }
+            console.warn("OpenAI unavailable, using demo fallback.", {
+                name: err?.name,
+                message: err?.message,
+                status: err?.status || err?.statusCode,
+            });
+            text = mockAiResponse(action, company, role, notes, userPrompt);
+            mode = "demo";
         }
         if (!text) {
             return res.status(502).json({ error: "AI returned an empty response." });

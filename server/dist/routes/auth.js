@@ -10,6 +10,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = require("../prisma");
 const crypto_1 = __importDefault(require("crypto"));
 const mailer_1 = require("../lib/mailer");
+const seedDemo_1 = require("../lib/seedDemo");
+const cookieOptions_1 = require("../lib/cookieOptions");
 const router = (0, express_1.Router)();
 const RegisterSchema = zod_1.z.object({
     email: zod_1.z.string().email(),
@@ -27,14 +29,7 @@ function signToken(payload) {
     return jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "7d" });
 }
 function cookieOptions() {
-    const isProd = process.env.NODE_ENV === "production";
-    return {
-        httpOnly: true,
-        sameSite: isProd ? "none" : "lax",
-        secure: isProd,
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    };
+    return (0, cookieOptions_1.authCookieOptions)();
 }
 function hashResetToken(token) {
     return crypto_1.default.createHash("sha256").update(token).digest("hex");
@@ -75,32 +70,20 @@ router.post("/login", async (req, res) => {
 });
 // DEMO (one-click try)
 router.post("/demo", async (_req, res) => {
-    const demoEmail = "demo@jobtracker.app";
-    let user = await prisma_1.prisma.user.findUnique({ where: { email: demoEmail } });
+    let user = await prisma_1.prisma.user.findUnique({ where: { email: seedDemo_1.DEMO_EMAIL } });
     if (!user) {
         const passwordHash = await bcrypt_1.default.hash("DemoPassword123!", 12);
         user = await prisma_1.prisma.user.create({
-            data: { email: demoEmail, password: passwordHash, name: "Demo User" },
-        });
-        await prisma_1.prisma.application.createMany({
-            data: [
-                { userId: user.id, company: "Acme Corp", role: "Frontend Developer", stage: "APPLIED" },
-                { userId: user.id, company: "Nimbus", role: "Full Stack Dev", stage: "INTERVIEW" },
-            ],
+            data: { email: seedDemo_1.DEMO_EMAIL, password: passwordHash, name: "Demo User" },
         });
     }
+    await (0, seedDemo_1.seedDemoApplications)(user.id);
     const token = signToken({ userId: user.id });
     res.cookie("token", token, cookieOptions());
     res.json({ user: { id: user.id, email: user.email, name: user.name } });
 });
 router.post("/logout", async (_req, res) => {
-    const isProd = process.env.NODE_ENV === "production";
-    res.clearCookie("token", {
-        httpOnly: true,
-        sameSite: isProd ? "none" : "lax",
-        secure: isProd,
-        path: "/",
-    });
+    res.clearCookie("token", (0, cookieOptions_1.authCookieOptions)());
     res.json({ ok: true });
 });
 // ME (get current user)

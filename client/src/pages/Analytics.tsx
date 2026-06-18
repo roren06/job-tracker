@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 import "./Analytics.css";
 import { useTheme } from "../lib/useTheme";
 import { useNavigate } from "react-router-dom";
+import { AppHeader } from "../components/AppHeader";
 
 type Stage = "SAVED" | "APPLIED" | "INTERVIEW" | "FINAL" | "OFFER" | "REJECTED";
 
@@ -94,14 +95,54 @@ function computeStreakDays(entries: { date: string; value: number }[]) {
   return streak;
 }
 
+function AnalyticsRangeToolbar({
+  range,
+  onRangeChange,
+  onGoBoard,
+}: {
+  range: RangeKey;
+  onRangeChange: (r: RangeKey) => void;
+  onGoBoard: () => void;
+}) {
+  return (
+    <div className="topbarToolbar">
+      <span className="topbarToolbarLabel">Time range</span>
+      {(["7d", "30d", "90d", "all"] as const).map((r) => (
+        <button
+          key={r}
+          type="button"
+          className={`rangePill ${range === r ? "isActive" : ""}`}
+          onClick={() => onRangeChange(r)}
+        >
+          {r === "7d" ? "7D" : r === "30d" ? "30D" : r === "90d" ? "90D" : "ALL"}
+        </button>
+      ))}
+      <div className="topbarToolbarSpacer" />
+      <button type="button" className="analyticsNavBtn" onClick={onGoBoard}>
+        ← Board
+      </button>
+    </div>
+  );
+}
+
 export default function Analytics() {
   const navigate = useNavigate();
-  type RangeKey = "7d" | "30d" | "90d" | "all";
   const [range, setRange] = useState<RangeKey>("30d");
 
   const { theme, toggle } = useTheme();
 
-  
+  async function logout() {
+    await api.post("/auth/logout");
+    window.location.href = "/";
+  }
+
+  const headerActions = (
+    <AnalyticsRangeToolbar
+      range={range}
+      onRangeChange={setRange}
+      onGoBoard={() => navigate("/board")}
+    />
+  );
 
   const { data, isLoading, isError } = useQuery({
   queryKey: ["analytics-summary", range],
@@ -254,38 +295,20 @@ export default function Analytics() {
     return (
       <div className="analyticsShell">
         <div className="analyticsInner">
-          <div className="analyticsHeaderTop">
-  <div>
-    <div className="analyticsTitle">Analytics</div>
-    <div className="analyticsSub">Pipeline snapshot based on your applications.</div>
-  </div>
+          <AppHeader
+            page="analytics"
+            subtitle="Analytics"
+            totalCount={0}
+            totalLabel="tracked"
+            actions={headerActions}
+            theme={theme}
+            onToggleTheme={toggle}
+            onGoBoard={() => navigate("/board")}
+            onGoAnalytics={() => navigate("/analytics")}
+            onLogout={logout}
+          />
 
-  {/* ✅ Toggle BEFORE 7D (same row as range pills) */}
-  <div className="rangeRow">
-    <button
-      type="button"
-      className="analyticsIconBtn"
-      onClick={toggle}
-      aria-label="Toggle theme"
-      title="Toggle theme"
-    >
-      {theme === "dark" ? "🌙" : "☀️"}
-    </button>
-
-    {(["7d", "30d", "90d", "all"] as const).map((r) => (
-      <button
-        key={r}
-        type="button"
-        className={`rangePill ${range === r ? "isActive" : ""}`}
-        onClick={() => setRange(r)}
-      >
-        {r === "7d" ? "7D" : r === "30d" ? "30D" : r === "90d" ? "90D" : "ALL"}
-      </button>
-    ))}
-  </div>
-</div>
-
-          <div className="analyticsTwoCol">
+          <div className="analyticsTwoCol analyticsTwoCol--loading">
             <div className="analyticsCard" style={{ minHeight: 260 }} />
             <div className="analyticsCard" style={{ minHeight: 260 }} />
           </div>
@@ -298,16 +321,25 @@ export default function Analytics() {
     return (
       <div className="analyticsShell">
         <div className="analyticsInner">
-          <div className="analyticsHeader">
-            <div className="analyticsTitle">Analytics</div>
-            <div className="analyticsSub">Couldn’t load analytics. Try again.</div>
-          </div>
+          <AppHeader
+            page="analytics"
+            subtitle="Analytics"
+            totalCount={0}
+            totalLabel="tracked"
+            actions={headerActions}
+            theme={theme}
+            onToggleTheme={toggle}
+            onGoBoard={() => navigate("/board")}
+            onGoAnalytics={() => navigate("/analytics")}
+            onLogout={logout}
+          />
 
-          <div className="analyticsCard">
-            <div style={{ opacity: 0.8 }}>Backend endpoint missing?</div>
-            <div style={{ marginTop: 10, opacity: 0.7 }}>
-              We’ll add <code>/analytics/summary</code> next.
-            </div>
+          <div className="analyticsCard analyticsErrorCard">
+            <div className="analyticsCardTitle">Couldn’t load analytics</div>
+            <p className="analyticsErrorText">Try again in a moment or return to your board.</p>
+            <button type="button" className="analyticsNavBtn" onClick={() => navigate("/board")}>
+              ← Back to board
+            </button>
           </div>
         </div>
       </div>
@@ -317,45 +349,18 @@ export default function Analytics() {
   return (
     <div className="analyticsShell">
       <div className="analyticsInner">
-        {/* ✅ UPDATED HEADER (title + subtitle + range pills) */}
-        <div className="analyticsHeader">
-  <div className="analyticsHeaderTop">
-    {/* LEFT */}
-    <div className="analyticsHeaderLeft">
-      <div className="analyticsTitle">Analytics</div>
-      <div className="analyticsSub">
-        Pipeline snapshot based on your applications.
-      </div>
-    </div>
-
-    {/* RIGHT: Toggle + Pills (same row, right aligned) */}
-    <div className="analyticsHeaderRight">
-      <button
-        className="analyticsIconBtn"
-        onClick={toggle}
-        title="Toggle theme"
-        aria-label="Toggle theme"
-      >
-        {theme === "dark" ? "🌙" : "☀️"}
-      </button>
-
-      {(["7d", "30d", "90d", "all"] as const).map((r) => (
-        <button
-          key={r}
-          type="button"
-          className={`rangePill ${range === r ? "isActive" : ""}`}
-          onClick={() => setRange(r)}
-        >
-          {r === "7d" ? "7D" : r === "30d" ? "30D" : r === "90d" ? "90D" : "ALL"}
-        </button>
-      ))}
-
-      <button className="rangePill" onClick={() => navigate("/board")}>
-  ← Board
-</button>
-    </div>
-  </div>
-</div>
+        <AppHeader
+          page="analytics"
+          subtitle="Analytics"
+          totalCount={summary.total}
+          totalLabel="tracked"
+          actions={headerActions}
+          theme={theme}
+          onToggleTheme={toggle}
+          onGoBoard={() => navigate("/board")}
+          onGoAnalytics={() => navigate("/analytics")}
+          onLogout={logout}
+        />
         <div className="analyticsGrid">
           {kpis.map((k) => (
             <div key={k.label} className="analyticsCard">
