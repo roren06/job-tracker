@@ -8,11 +8,13 @@ A full-stack job application tracker with a drag-and-drop Kanban board, analytic
 
 ## Screenshots
 
-> Add PNGs to [`docs/screenshots/`](./docs/screenshots/) — see that folder for capture instructions.
-
 | Landing | Board | Analytics |
 |---------|-------|-----------|
 | ![Landing](./docs/screenshots/landing.png) | ![Board](./docs/screenshots/board.png) | ![Analytics](./docs/screenshots/analytics.png) |
+
+| Edit card (double-click) | AI assistant (drawer) |
+|--------------------------|------------------------|
+| ![Drawer](./docs/screenshots/drawer.png) | ![AI drawer](./docs/screenshots/ai-drawer.png) |
 
 ## Features
 
