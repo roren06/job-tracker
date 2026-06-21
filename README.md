@@ -2,8 +2,7 @@
 
 A full-stack job application tracker with a drag-and-drop Kanban board, analytics dashboard, and per-application AI writing assistant.
 
-**Live demo:** `https://YOUR_VERCEL_URL.vercel.app` ← replace with your deployed URL  
-**Repository:** [github.com/roren06/job-tracker](https://github.com/roren06/job-tracker)  
+**Live demo:** [job-tracker-tau-weld.vercel.app](https://job-tracker-tau-weld.vercel.app)  
 **Case study:** [CASE_STUDY.md](./CASE_STUDY.md)
 
 ## Screenshots
@@ -103,10 +102,10 @@ job-tracker/
 │       ├── routes/
 │       └── lib/          # seedDemo, cookieOptions
 ├── docs/screenshots/     # README screenshots
-└── CASE_STUDY.md         # Portfolio write-up
+└── CASE_STUDY.md         # Technical case study
 ```
 
-## Portfolio highlights
+## Technical highlights
 
 - Shared premium header across Board and Analytics
 - Optimistic UI for drag-and-drop and card reordering

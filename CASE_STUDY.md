@@ -4,8 +4,7 @@
 
 **Job Tracker** is a full-stack web app for managing a job search pipeline. Users track applications on a drag-and-drop Kanban board, visualize progress with analytics, and get per-application AI help for cover letters, follow-ups, and interview prep.
 
-**Live demo:** Replace with your deployed URL  
-**GitHub:** [github.com/roren06/job-tracker](https://github.com/roren06/job-tracker)
+**Live demo:** [job-tracker-tau-weld.vercel.app](https://job-tracker-tau-weld.vercel.app)
 
 ---
 
